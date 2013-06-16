@@ -2,7 +2,7 @@ var http = require('http');
 var net = require('net');
 var url = require('url');
 
-var log = require('book');
+var log = require('bookrc');
 var debug = require('debug')('localtunnel-server');
 var createRawServer = require('http-raw');
 
