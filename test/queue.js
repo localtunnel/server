@@ -2,11 +2,11 @@ var http = require('http');
 var url = require('url');
 var assert = require('assert');
 
-var localtunnel_server = require('../').server({
+var localtunnel_server = require('../server')({
     max_tcp_sockets: 1
 });
 
-var localtunnel_client = require('../').client;
+var localtunnel_client = require('localtunnel').client;
 
 var server;
 
