@@ -155,6 +155,7 @@ module.exports = function(opt) {
     var app = express();
 
     app.set('view engine', 'html');
+    app.set('views', __dirname + '/views');
     app.engine('html', require('hbs').__express);
 
     app.use(function(req, res, next) {
