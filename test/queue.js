@@ -6,7 +6,7 @@ var localtunnel_server = require('../server')({
     max_tcp_sockets: 1
 });
 
-var localtunnel_client = require('localtunnel').client;
+var localtunnel_client = require('localtunnel');
 
 var server;
 

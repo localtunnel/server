@@ -1,0 +1,8 @@
+.row {
+  position: relative;
+}
+
+.row .half {
+  width: 49%;
+  display: inline-block;
+}

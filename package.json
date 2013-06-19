@@ -15,7 +15,16 @@
     "debug": "0.7.2",
     "bookrc": "0.0.1",
     "book-git": "0.0.2",
-    "book-raven": "1.0.0"
+    "book-raven": "1.0.0",
+    "engine.io": "0.6.2",
+    "engine.io-client": "shtylman/engine.io-client#v0.5.0-dz0",
+    "flip-counter": "0.5.3",
+    "browserkthx": "0.0.2",
+    "hbs": "2.3.0",
+    "taters": "0.0.5",
+    "express": "3.2.6",
+    "makeup": "0.0.1",
+    "enchilada": "0.3.0"
   },
   "devDependencies": {
     "mocha": "1.6.0",

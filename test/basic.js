@@ -3,7 +3,7 @@ var url = require('url');
 var assert = require('assert');
 
 var localtunnel_server = require('../server')();
-var localtunnel_client = require('localtunnel').client;
+var localtunnel_client = require('localtunnel');
 
 test('setup localtunnel server', function(done) {
     localtunnel_server.listen(3000, function() {
