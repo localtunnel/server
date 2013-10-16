@@ -1,8 +1,8 @@
-# localtunnel-server [![Build Status](https://secure.travis-ci.org/shtylman/localtunnel-server.png)](http://travis-ci.org/shtylman/localtunnel-serer) #
+# localtunnel-server [![Build Status](https://secure.travis-ci.org/defunctzombie/localtunnel-server.png)](http://travis-ci.org/defunctzombie/localtunnel-serer) #
 
 localtunnel exposes your localhost to the world for easy testing and sharing! No need to mess with DNS or deploy just to have others test out your changes.
 
-This repo is the server component. If you are just looking for the CLI localtunnel app, see (https://github.com/shtylman/localtunnel)
+This repo is the server component. If you are just looking for the CLI localtunnel app, see (https://github.com/defunctzombie/localtunnel)
 
 ## overview ##
 
@@ -17,7 +17,7 @@ The above are important as the client will ask the server for a subdomain under 
 
 ```shell
 // pick a place where the files will live
-git clone git://github.com/shtylman/localtunnel-server.git
+git clone git://github.com/defunctzombie/localtunnel-server.git
 cd localtunnel
 npm install
 
