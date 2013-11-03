@@ -11,7 +11,6 @@
     "request": "2.11.4",
     "book": "1.2.0",
     "optimist": "0.3.4",
-    "http-raw": "1.1.0",
     "debug": "0.7.2",
     "bookrc": "0.0.1",
     "book-git": "0.0.2",
@@ -24,7 +23,8 @@
     "taters": "0.0.5",
     "express": "3.2.6",
     "makeup": "0.0.1",
-    "enchilada": "0.3.0"
+    "enchilada": "0.3.0",
+    "bouncy": "3.2.1"
   },
   "devDependencies": {
     "mocha": "1.6.0",

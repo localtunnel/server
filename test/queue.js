@@ -24,7 +24,7 @@ test('setup local http server', function(done) {
         setTimeout(function() {
             res.setHeader('x-count', req.headers['x-count']);
             res.end('foo');
-        }, 100);
+        }, 500);
     });
 
     server.listen(function() {

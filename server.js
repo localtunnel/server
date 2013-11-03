@@ -1,12 +1,12 @@
 var log = require('bookrc');
 var express = require('express');
+var bouncy = require('bouncy');
 var taters = require('taters');
 var enchilada = require('enchilada');
 var makeup = require('makeup');
 var engine = require('engine.io');
 var browserkthx = require('browserkthx');
 var debug = require('debug')('localtunnel-server');
-var createRawServer = require('http-raw');
 
 var Proxy = require('./proxy');
 var rand_id = require('./lib/rand_id');
@@ -23,9 +23,7 @@ var stats = {
     tunnels: 0,
 };
 
-// return true if request will be handled, false otherwise
-function middleware(req, res) {
-
+function maybe_bounce(req, res, bounce) {
     // without a hostname, we won't know who the request is for
     var hostname = req.headers.host;
     if (!hostname) {
@@ -35,35 +33,9 @@ function middleware(req, res) {
     var match = hostname.match(/^([a-z]{4})[.].*/);
 
     // not for a specific client
+    // pass on to regular server
     if (!match) {
-        var match = req.url.match(/\/([a-z]{4})$/);
-
-        var req_id;
-
-        if (req.url === '/?new') {
-            req_id = rand_id();
-        }
-        else if (match && match[1]) {
-            req_id = match[1];
-        }
-
-        // will not handle
-        if (!req_id) {
-            return false;
-        }
-
-        new_client(req_id, {}, function(err, info) {
-            if (err) {
-                res.statusCode = 500;
-                return res.end(err.message);
-            }
-
-            var url = 'http://' + req_id + '.' + req.headers.host;
-            info.url = url;
-            res.end(JSON.stringify(info));
-        });
-
-        return true;
+        return false;
     }
 
     var client_id = match[1];
@@ -83,37 +55,18 @@ function middleware(req, res) {
         --stats.requests;
     });
 
-    var rs = req.createRawStream();
-    var ws = res.createRawStream();
+    // get client port
+    client.next_socket(function(socket, done) {
+        var stream = bounce(socket); //, { headers: { connection: 'close' } });
 
-    client.proxy_request(req, res, rs, ws);
+        // return the socket to the client pool
+        stream.once('end', function() {
+            done();
+        });
+    });
+
     return true;
 }
-
-var handle_upgrade = function(req, socket, head) {
-    var hostname = req.headers.host;
-    if (!hostname) {
-        return socket.end();
-    }
-
-    var match = hostname.match(/^([a-z]{4})[.].*/);
-
-    // not handled by us
-    if (!match) {
-        return false;
-    }
-
-    var client_id = match[1];
-    var client = clients[client_id];
-
-    // no such subdomain
-    if (!client) {
-        return socket.end();
-    }
-
-    client.handle_upgrade(req, socket, head);
-    return true;
-};
 
 function new_client(id, opt, cb) {
 
@@ -150,21 +103,11 @@ function new_client(id, opt, cb) {
 module.exports = function(opt) {
     opt = opt || {};
 
-    var server = createRawServer();
-
     var app = express();
 
     app.set('view engine', 'html');
     app.set('views', __dirname + '/views');
     app.engine('html', require('hbs').__express);
-
-    app.use(function(req, res, next) {
-        if (middleware(req, res)) {
-            return;
-        }
-
-        next();
-    });
 
     app.use(express.favicon());
 
@@ -180,6 +123,42 @@ module.exports = function(opt) {
     app.use('/css/widgets.css', makeup(__dirname + '/static/css/widgets.css'));
     app.use(express.static(__dirname + '/static'));
     app.use(app.router);
+
+    app.get('/', function(req, res, next) {
+        if (!req.query.hasOwnProperty('new')) {
+            return next();
+        }
+
+        var req_id = rand_id();
+        debug('making new client with id %s', req_id);
+        new_client(req_id, opt, function(err, info) {
+            if (err) {
+                res.statusCode = 500;
+                return res.end(err.message);
+            }
+
+            var url = 'http://' + req_id + '.' + req.headers.host;
+            info.url = url;
+            res.end(JSON.stringify(info));
+        });
+    });
+
+    app.get('/:req_id', function(req, res, next) {
+        var req_id = req.param('req_id');
+
+        debug('making new client with id %s', req_id);
+        new_client(req_id, opt, function(err, info) {
+            if (err) {
+                res.statusCode = 500;
+                return res.end(err.message);
+            }
+
+            var url = 'http://' + req_id + '.' + req.headers.host;
+            info.url = url;
+            res.end(JSON.stringify(info));
+        });
+
+    });
 
     app.get('/', function(req, res, next) {
         return res.render('index');
@@ -214,17 +193,19 @@ module.exports = function(opt) {
         eio_server.handleRequest(req, res);
     });
 
-    server.on('request', app);
-    server.on('upgrade', handle_upgrade);
+    var app_port = 0;
+    var app_server = app.listen(app_port, function() {
+        app_port = app_server.address().port;
+    });
 
-    server.on('upgrade', function(req, socket, head) {
-        if (handle_upgrade(req, socket, head)) {
+    var server = bouncy(function(req, res, bounce) {
+        // if we should bounce this request, then don't send to our server
+        if (maybe_bounce(req, res, bounce)) {
             return;
-        }
+        };
 
-        eio_server.handleUpgrade(req, socket, head);
+        bounce(app_port);
     });
 
     return server;
 };
-
