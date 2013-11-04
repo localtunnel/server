@@ -199,6 +199,8 @@ module.exports = function(opt) {
     });
 
     var server = bouncy(function(req, res, bounce) {
+        debug('request %s', req.url);
+
         // if we should bounce this request, then don't send to our server
         if (maybe_bounce(req, res, bounce)) {
             return;

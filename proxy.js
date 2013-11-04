@@ -135,6 +135,11 @@ Proxy.prototype.next_socket = function(cb) {
             self.sockets.push(sock);
         }
 
+        // no sockets left to process waiting requests
+        if (self.sockets.length === 0) {
+            return;
+        }
+
         var wait = self.waiting.shift();
         debug('processing queued cb');
         if (wait) {
