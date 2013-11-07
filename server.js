@@ -51,13 +51,29 @@ function maybe_bounce(req, res, bounce) {
 
     ++stats.requests;
 
-    res.on('close', function() {
+    res.once('close', function() {
         --stats.requests;
     });
 
     // get client port
     client.next_socket(function(socket, done) {
-        var stream = bounce(socket); //, { headers: { connection: 'close' } });
+        // happens when client upstream is disconnected
+        // we gracefully inform the user and kill their conn
+        // without this, the browser will leave some connections open
+        // and try to use them again for new requests
+        // we cannot have this as we need bouncy to assign the requests again
+        if (!socket) {
+            res.statusCode = 504;
+            res.end();
+            req.connection.destroy();
+            return;
+        }
+
+        var stream = bounce(socket, { headers: { connection: 'close' } });
+
+        stream.on('error', function(err) {
+            socket.destroy();
+        });
 
         // return the socket to the client pool
         stream.once('end', function() {
@@ -122,6 +138,7 @@ module.exports = function(opt) {
 
     app.use('/css/widgets.css', makeup(__dirname + '/static/css/widgets.css'));
     app.use(express.static(__dirname + '/static'));
+
     app.use(app.router);
 
     app.get('/', function(req, res, next) {
@@ -143,8 +160,16 @@ module.exports = function(opt) {
         });
     });
 
+    app.get('/', function(req, res, next) {
+        return res.render('index');
+    });
+
     app.get('/:req_id', function(req, res, next) {
         var req_id = req.param('req_id');
+
+        if (! /[a-z]{4}/.test(req_id)) {
+            return next();
+        }
 
         debug('making new client with id %s', req_id);
         new_client(req_id, opt, function(err, info) {
@@ -160,8 +185,9 @@ module.exports = function(opt) {
 
     });
 
-    app.get('/', function(req, res, next) {
-        return res.render('index');
+    var app_port = 0;
+    var app_server = app.listen(app_port, function() {
+        app_port = app_server.address().port;
     });
 
     // connected engine.io sockets for stats updates
@@ -173,7 +199,7 @@ module.exports = function(opt) {
         });
     }, 1000);
 
-    var eio_server = new engine.Server();
+    var eio_server = engine.attach(app_server);
     eio_server.on('connection', function (socket) {
 
         eio_sockets.push(socket);
@@ -189,14 +215,6 @@ module.exports = function(opt) {
         });
     });
 
-    app.use('/engine.io', function(req, res, next) {
-        eio_server.handleRequest(req, res);
-    });
-
-    var app_port = 0;
-    var app_server = app.listen(app_port, function() {
-        app_port = app_server.address().port;
-    });
 
     var server = bouncy(function(req, res, bounce) {
         debug('request %s', req.url);
