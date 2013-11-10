@@ -24,7 +24,8 @@
     "express": "3.2.6",
     "makeup": "0.0.1",
     "enchilada": "0.3.0",
-    "bouncy": "3.2.1"
+    "bouncy": "3.2.1",
+    "superstack": "0.0.3"
   },
   "devDependencies": {
     "mocha": "1.6.0",
