@@ -2,6 +2,7 @@
 
 var log = require('bookrc');
 var optimist = require('optimist');
+var debug = require('debug')('localtunnel');
 
 var argv = optimist
     .usage('Usage: $0 --port [num]')
@@ -16,18 +17,12 @@ if (argv.help) {
     process.exit();
 }
 
-process.once('uncaughtException', function(err) {
-    log.panic(err);
-    process.exit(-1);
-    return;
-});
-
 var server = require('../server')({
     max_tcp_sockets: 5
 });
 
 server.listen(argv.port, function() {
-    log.info('server listening on port: %d', server.address().port);
+    debug('server listening on port: %d', server.address().port);
 });
 
 // vim: ft=javascript
