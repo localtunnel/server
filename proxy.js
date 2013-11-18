@@ -39,7 +39,10 @@ var Proxy = function(opt, cb) {
     // user has 5 seconds to connect before their slot is given up
     function maybe_tcp_close() {
         clearTimeout(conn_timeout);
-        conn_timeout = setTimeout(client_server.close.bind(client_server), 5000);
+        conn_timeout = setTimeout(function() {
+            client_server.close();
+            clearTimeout(conn_timeout);
+        }, 5000);
     }
 
     maybe_tcp_close();
