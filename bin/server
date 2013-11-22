@@ -6,6 +6,10 @@ var debug = require('debug')('localtunnel');
 
 var argv = optimist
     .usage('Usage: $0 --port [num]')
+    .options('secure', {
+        default: false,
+        describe: 'use this flag to indicate proxy over https'
+    })
     .options('port', {
         default: '80',
         describe: 'listen on this port for outside requests'
@@ -18,7 +22,8 @@ if (argv.help) {
 }
 
 var server = require('../server')({
-    max_tcp_sockets: 5
+    max_tcp_sockets: 5,
+    secure: argv.secure
 });
 
 server.listen(argv.port, function() {

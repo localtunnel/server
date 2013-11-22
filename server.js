@@ -119,6 +119,8 @@ function new_client(id, opt, cb) {
 module.exports = function(opt) {
     opt = opt || {};
 
+    var schema = opt.secure ? 'https' : 'http';
+
     var app = express();
 
     app.set('view engine', 'html');
@@ -154,7 +156,7 @@ module.exports = function(opt) {
                 return res.end(err.message);
             }
 
-            var url = 'https://' + req_id + '.' + req.headers.host;
+            var url = schema + '://' + req_id + '.' + req.headers.host;
             info.url = url;
             res.end(JSON.stringify(info));
         });
@@ -178,7 +180,7 @@ module.exports = function(opt) {
                 return res.end(err.message);
             }
 
-            var url = 'https://' + req_id + '.' + req.headers.host;
+            var url = schema + '://' + req_id + '.' + req.headers.host;
             info.url = url;
             res.end(JSON.stringify(info));
         });
