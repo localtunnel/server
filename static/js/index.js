@@ -21,9 +21,8 @@ var user_counter = new flipCounter('user-count', {
     auto: false
 });
 
-var socket = eio('/');
-socket.on('open', function () {
-});
+var socket = eio();
+socket.on('open', function () {});
 
 socket.on('message', function (data) {
     var msg = JSON.parse(data);
