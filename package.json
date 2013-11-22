@@ -24,7 +24,9 @@
     "makeup": "0.0.1",
     "enchilada": "0.5.0",
     "bouncy": "3.2.1",
-    "superstack": "0.0.3"
+    "superstack": "0.0.3",
+    "stylish": "0.3.0",
+    "makeover": "0.0.1"
   },
   "devDependencies": {
     "mocha": "1.14.0",

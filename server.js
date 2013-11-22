@@ -3,6 +3,8 @@ var express = require('express');
 var bouncy = require('bouncy');
 var taters = require('taters');
 var enchilada = require('enchilada');
+var stylish = require('stylish');
+var makeover = require('makeover');
 var makeup = require('makeup');
 var engine = require('engine.io');
 var browserkthx = require('browserkthx');
@@ -131,6 +133,15 @@ module.exports = function(opt) {
 
     app.use(browserkthx({ ie: '< 9' }));
     app.use(taters({ cache: kProduction }));
+
+    app.use(stylish({
+        src: __dirname + '/static/',
+        compress: kProduction,
+        cache: kProduction,
+        setup: function(stylus) {
+            return stylus.use(makeover());
+        }
+    }));
 
     app.use(enchilada({
         src: __dirname + '/static/',
