@@ -9,10 +9,12 @@ var localtunnel_server = require('../server')({
 var localtunnel_client = require('localtunnel');
 
 var server;
+var lt_server_port;
 
 test('setup localtunnel server', function(done) {
-    localtunnel_server.listen(3000, function() {
-        console.log('lt server on:', 3000);
+    var lt_server = localtunnel_server.listen(function() {
+        lt_server_port = lt_server.address().port;
+        console.log('lt server on:', lt_server_port);
         done();
     });
 });
@@ -38,12 +40,12 @@ test('setup local http server', function(done) {
 
 test('setup localtunnel client', function(done) {
     var client = localtunnel_client.connect({
-        host: 'http://localhost:' + 3000,
+        host: 'http://localhost:' + lt_server_port,
         port: test._fake_port
     });
 
     client.on('url', function(url) {
-        assert.ok(/^http:\/\/.*localhost:3000$/.test(url));
+        assert.ok(new RegExp('^http:\/\/.*localhost:' + lt_server_port + '$').test(url));
         test._fake_url = url;
         done();
     });
@@ -60,7 +62,7 @@ test('query localtunnel server w/ ident', function(done) {
     var count = 0;
     var opt = {
         host: 'localhost',
-        port: 3000,
+        port: lt_server_port,
         agent: false,
         headers: {
             host: hostname
