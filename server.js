@@ -154,7 +154,7 @@ module.exports = function(opt) {
                 return res.end(err.message);
             }
 
-            var url = 'http://' + req_id + '.' + req.headers.host;
+            var url = 'https://' + req_id + '.' + req.headers.host;
             info.url = url;
             res.end(JSON.stringify(info));
         });
@@ -178,7 +178,7 @@ module.exports = function(opt) {
                 return res.end(err.message);
             }
 
-            var url = 'http://' + req_id + '.' + req.headers.host;
+            var url = 'https://' + req_id + '.' + req.headers.host;
             info.url = url;
             res.end(JSON.stringify(info));
         });
