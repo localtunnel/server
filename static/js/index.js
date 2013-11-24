@@ -34,3 +34,6 @@ socket.on('close', function () {
     request_counter.incrementTo(0);
     user_counter.incrementTo(0);
 });
+
+// load google analytics after above starts
+require('./ga');
