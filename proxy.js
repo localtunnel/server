@@ -40,15 +40,20 @@ var Proxy = function(opt, cb) {
     function maybe_tcp_close() {
         clearTimeout(conn_timeout);
         conn_timeout = setTimeout(function() {
-            client_server.close();
-            clearTimeout(conn_timeout);
+
+            // sometimes the server is already closed but the event has not fired?
+            try {
+                clearTimeout(conn_timeout);
+                client_server.close();
+            } catch (err) {
+                cleanup();
+            }
         }, 5000);
     }
 
     maybe_tcp_close();
 
-    // no longer accepting connections for this id
-    client_server.on('close', function() {
+    function cleanup() {
         debug('closed tcp socket for client(%s)', id);
 
         clearTimeout(conn_timeout);
@@ -59,7 +64,10 @@ var Proxy = function(opt, cb) {
         });
 
         self.emit('end');
-    });
+    }
+
+    // no longer accepting connections for this id
+    client_server.on('close', cleanup);
 
     // new tcp connection from lt client
     client_server.on('connection', function(socket) {
