@@ -31,6 +31,7 @@ test('setup local http server', function(done) {
 });
 
 test('setup localtunnel client', function(done) {
+
     var client = localtunnel_client.connect({
         host: 'http://localhost:' + lt_server_port,
         port: test._fake_port
@@ -43,7 +44,7 @@ test('setup localtunnel client', function(done) {
     });
 
     client.on('error', function(err) {
-        console.error(err);
+        done(err);
     });
 });
 
@@ -99,4 +100,3 @@ test('request specific domain', function(done) {
 test('shutdown', function() {
     localtunnel_server.close();
 });
-

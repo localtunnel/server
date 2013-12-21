@@ -155,7 +155,7 @@ module.exports = function(opt) {
     app.use(app.router);
 
     app.get('/', function(req, res, next) {
-        if (!req.query.hasOwnProperty('new')) {
+        if (req.query['new'] === undefined) {
             return next();
         }
 
