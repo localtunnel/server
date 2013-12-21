@@ -22,7 +22,7 @@ if (argv.help) {
 }
 
 var server = require('../server')({
-    max_tcp_sockets: 5,
+    max_tcp_sockets: 10,
     secure: argv.secure
 });
 
