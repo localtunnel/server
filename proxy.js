@@ -16,8 +16,8 @@ var Proxy = function(opt, cb) {
 
     var id = opt.id;
 
-    // default max is 5
-    var max_tcp_sockets = opt.max_tcp_sockets || 5;
+    // default max is 10
+    var max_tcp_sockets = opt.max_tcp_sockets || 10;
 
     // new tcp server to service requests for this client
     var client_server = net.createServer();
