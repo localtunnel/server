@@ -32,7 +32,7 @@ function maybe_bounce(req, res, bounce) {
         return false;
     }
 
-    var match = hostname.match(/^([a-z]{4})[.].*/);
+    var match = hostname.match(/^([a-z0-9]{4,10})[.].*/);
 
     // not for a specific client
     // pass on to regular server
@@ -180,7 +180,7 @@ module.exports = function(opt) {
     app.get('/:req_id', function(req, res, next) {
         var req_id = req.param('req_id');
 
-        if (! /[a-z]{4}/.test(req_id)) {
+        if (! /[A-Za-z0-9]{4,10}/.test(req_id)) {
             return next();
         }
 
