@@ -218,6 +218,11 @@ module.exports = function(opt) {
         eio_sockets.push(socket);
         socket.send(JSON.stringify(stats));
 
+        socket.on('error', function(err) {
+            log.error(err);
+            socket.close();
+        });
+
         socket.on('close', function() {
 
             // remove from socket pool so no more updates are sent
