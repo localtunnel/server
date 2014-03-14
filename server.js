@@ -32,7 +32,7 @@ function maybe_bounce(req, res, bounce) {
         return false;
     }
 
-    var match = hostname.match(/^([a-z0-9]{4,10})[.].*/);
+    var match = hostname.match(/^([a-z0-9]{4,10})[.].+[.].+/);
 
     // not for a specific client
     // pass on to regular server
