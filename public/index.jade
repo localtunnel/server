@@ -1,0 +1,77 @@
+doctype 5
+html
+    head
+        link(rel="stylesheet", href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css")
+
+        link(rel="stylesheet", href="styles/bootstrap.min.css")
+        link(rel="stylesheet", href="styles/main.css")
+
+        meta(charset="utf-8")
+        meta(name="viewport", content="width=device-width")
+
+        title Develer.me
+    body(ng-app="startPageApp")
+        //-
+        //- Navigation
+        //-
+
+        nav.navbar.navbar-default.navbar-static-top(role="navigation")
+            .navbar-header
+                a.navbar-brand(href="//develer.me") Develer.me
+
+        a(href="https://github.com/develersrl/develer.me")
+            img(style="position: absolute; top: 0; right: 0; border: 0; width: 149px; height: 149px; z-index: 2000", src="images/github-ribbon-right-orange@2x.png" alt="Fork me on GitHub")
+
+
+        //-
+        //- Main
+        //-
+
+        .container
+            .jumbotron
+                h2
+                    | Expose your localhost to Internet
+
+                p
+                    | Develer.me is the local installation of
+                    a(href="localtunnel.me")
+                        |  localtunnel.me
+                    | , to be used by Develer hackers to show gorgeous work-in-progress version
+                    | of their software to the outside world.
+
+            .row
+                .col-md-8.col-md-offset-2
+                    h3 How to use the service
+                    p Install the command-line client via NPM:
+                    blockquote.
+                        $ npm install -g develersrl/client.develer.me
+
+                    p Run it by specifying your localhost port:
+                    blockquote.
+                        $ lt --port 8080
+                        your url is: http://qdlixavcfq.develer.me
+
+                    p
+                        | and enjoy direct access to your local website. Just give a CTRL+C to stop it.
+
+                    p
+                        | You can specify a custom subdomain if you want:
+                    blockquote.
+                        $ lt --port 8000 --subdomain gemelle
+                        your url is: http://gemelle.develer.me
+
+            .row
+                .col-md-8.col-md-offset-2
+                    h3 Notes
+                    ul
+                        li You can open tunnels only while within the Develer network, or through the VPN
+                        li The service is not available through SSL; if you need SSL,
+                            a(href="http://support.develer.com")  open a ticket
+
+
+            //-
+            //- Footer
+            //-
+
+            .row
+                img(src="images/develer-logo.png", style="float:right", width="150px")
