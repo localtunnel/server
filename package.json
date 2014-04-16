@@ -10,7 +10,7 @@
   "dependencies": {
     "book": "1.3.1",
     "optimist": "0.6.0",
-    "debug": "0.7.4",
+    "debug": "0.8.0",
     "bookrc": "0.0.1",
     "book-git": "0.0.2",
     "book-raven": "1.0.1",
@@ -29,8 +29,8 @@
     "makeover": "0.0.1"
   },
   "devDependencies": {
-    "mocha": "1.14.0",
-    "localtunnel": "0.1.3"
+    "mocha": "1.18.2",
+    "localtunnel": "1.1.1"
   },
   "scripts": {
     "test": "mocha --ui qunit -- test",

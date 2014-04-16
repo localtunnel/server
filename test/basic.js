@@ -1,9 +1,9 @@
 var http = require('http');
 var url = require('url');
 var assert = require('assert');
+var localtunnel = require('localtunnel');
 
 var localtunnel_server = require('../server')();
-var localtunnel_client = require('localtunnel');
 
 var lt_server_port
 
@@ -31,19 +31,15 @@ test('setup local http server', function(done) {
 });
 
 test('setup localtunnel client', function(done) {
-
-    var client = localtunnel_client.connect({
+    var opt = {
         host: 'http://localhost:' + lt_server_port,
-        port: test._fake_port
-    });
+    };
 
-    client.on('url', function(url) {
+    localtunnel(test._fake_port, opt, function(err, tunnel) {
+        assert.ifError(err);
+        var url = tunnel.url;
         assert.ok(new RegExp('^http:\/\/.*localhost:' + lt_server_port + '$').test(url));
         test._fake_url = url;
-        done();
-    });
-
-    client.on('error', function(err) {
         done(err);
     });
 });
@@ -81,19 +77,17 @@ test('query localtunnel server w/ ident', function(done) {
 });
 
 test('request specific domain', function(done) {
-    var client = localtunnel_client.connect({
+    var opt = {
         host: 'http://localhost:' + lt_server_port,
-        port: test._fake_port,
         subdomain: 'abcd'
-    });
+    };
 
-    client.on('url', function(url) {
-        assert.ok(new RegExp('^http:\/\/abcd.localhost:' + lt_server_port + '$').test(url));
-        done();
-    });
-
-    client.on('error', function(err) {
-        console.error(err);
+    localtunnel(test._fake_port, opt, function(err, tunnel) {
+        assert.ifError(err);
+        var url = tunnel.url;
+        assert.ok(new RegExp('^http:\/\/.*localhost:' + lt_server_port + '$').test(url));
+        test._fake_url = url;
+        done(err);
     });
 });
 

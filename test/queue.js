@@ -1,12 +1,11 @@
 var http = require('http');
 var url = require('url');
 var assert = require('assert');
+var localtunnel = require('localtunnel');
 
 var localtunnel_server = require('../server')({
     max_tcp_sockets: 1
 });
-
-var localtunnel_client = require('localtunnel');
 
 var server;
 var lt_server_port;
@@ -39,19 +38,16 @@ test('setup local http server', function(done) {
 });
 
 test('setup localtunnel client', function(done) {
-    var client = localtunnel_client.connect({
+    var opt = {
         host: 'http://localhost:' + lt_server_port,
-        port: test._fake_port
-    });
+    };
 
-    client.on('url', function(url) {
+    localtunnel(test._fake_port, opt, function(err, tunnel) {
+        assert.ifError(err);
+        var url = tunnel.url;
         assert.ok(new RegExp('^http:\/\/.*localhost:' + lt_server_port + '$').test(url));
         test._fake_url = url;
-        done();
-    });
-
-    client.on('error', function(err) {
-        console.error(err);
+        done(err);
     });
 });
 
