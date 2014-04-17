@@ -16,7 +16,7 @@ var rand_id = require('./lib/rand_id');
 var kProduction = process.env.NODE_ENV === 'production';
 
 // id -> client http server
-var clients = {};
+var clients = Object.create(null);
 
 // proxy statistics
 var stats = {
@@ -32,7 +32,8 @@ function maybe_bounce(req, res, bounce) {
         return false;
     }
 
-    var match = hostname.match(/^([a-z0-9]{4,10})[.].*/);
+    // extract the subdomain, which is the client id
+    var match = hostname.match(/^([a-z0-9]+)[.].*/);
 
     // not for a specific client
     // pass on to regular server
@@ -169,7 +170,7 @@ module.exports = function(opt) {
 
             var url = schema + '://' + req_id + '.' + req.headers.host;
             info.url = url;
-            res.end(JSON.stringify(info));
+            res.json(info);
         });
     });
 
@@ -180,8 +181,11 @@ module.exports = function(opt) {
     app.get('/:req_id', function(req, res, next) {
         var req_id = req.param('req_id');
 
-        if (! /[A-Za-z0-9]{4,10}/.test(req_id)) {
-            return next();
+        // limit requested hostnames to 20 characters
+        if (! /^[A-Za-z0-9]{4,20}$/.test(req_id)) {
+            var err = new Error('');
+            err.statusCode = 403;
+            return next(err);
         }
 
         debug('making new client with id %s', req_id);
@@ -193,9 +197,16 @@ module.exports = function(opt) {
 
             var url = schema + '://' + req_id + '.' + req.headers.host;
             info.url = url;
-            res.end(JSON.stringify(info));
+            res.json(info);
         });
 
+    });
+
+    app.use(function(err, req, res, next) {
+        var status = err.statusCode || err.status || 500;
+        res.status(status).json({
+            message: err.message
+        });
     });
 
     var app_port = 0;
@@ -232,7 +243,6 @@ module.exports = function(opt) {
             }
         });
     });
-
 
     var server = bouncy(function(req, res, bounce) {
         debug('request %s', req.url);
