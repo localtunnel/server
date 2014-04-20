@@ -183,7 +183,7 @@ module.exports = function(opt) {
 
         // limit requested hostnames to 20 characters
         if (! /^[A-Za-z0-9]{4,20}$/.test(req_id)) {
-            var err = new Error('');
+            var err = new Error('Invalid subdomain. Subdomains must be between 4 and 20 alphanumeric characters.');
             err.statusCode = 403;
             return next(err);
         }
@@ -191,8 +191,7 @@ module.exports = function(opt) {
         debug('making new client with id %s', req_id);
         new_client(req_id, opt, function(err, info) {
             if (err) {
-                res.statusCode = 500;
-                return res.end(err.message);
+                return next(err);
             }
 
             var url = schema + '://' + req_id + '.' + req.headers.host;

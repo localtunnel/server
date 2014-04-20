@@ -30,10 +30,10 @@
   },
   "devDependencies": {
     "mocha": "1.18.2",
-    "localtunnel": "1.1.1"
+    "localtunnel": "1.1.2"
   },
   "scripts": {
-    "test": "mocha --ui qunit -- test",
+    "test": "mocha --ui qunit --reporter list -- test",
     "start": "./bin/server"
   }
 }

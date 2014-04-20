@@ -91,6 +91,19 @@ test('request specific domain', function(done) {
     });
 });
 
+test('request domain that is too long', function(done) {
+    var opt = {
+        host: 'http://localhost:' + lt_server_port,
+        subdomain: 'thisdomainisoutsidethesizeofwhatweallow'
+    };
+
+    localtunnel(test._fake_port, opt, function(err, tunnel) {
+        assert(err);
+        assert.equal(err.message, 'Invalid subdomain. Subdomains must be between 4 and 20 alphanumeric characters.');
+        done();
+    });
+});
+
 test('shutdown', function() {
     localtunnel_server.close();
 });
