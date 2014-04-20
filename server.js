@@ -33,7 +33,7 @@ function maybe_bounce(req, res, bounce) {
     }
 
     // extract the subdomain, which is the client id
-    var match = hostname.match(/^([a-z0-9]+)[.].*/);
+    var match = hostname.match(/^([a-z0-9]+)[.].*[.].*/);
 
     // not for a specific client
     // pass on to regular server
