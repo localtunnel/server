@@ -8,6 +8,7 @@ var makeover = require('makeover');
 var makeup = require('makeup');
 var engine = require('engine.io');
 var browserkthx = require('browserkthx');
+var tldjs = require('tldjs');
 var debug = require('debug')('localtunnel-server');
 
 var Proxy = require('./proxy');
@@ -32,16 +33,12 @@ function maybe_bounce(req, res, bounce) {
         return false;
     }
 
-    // extract the subdomain, which is the client id
-    var match = hostname.match(/^([a-z0-9]+)[.].*/);
-
-    // not for a specific client
-    // pass on to regular server
-    if (!match) {
+    var subdomain = tldjs.getSubdomain(hostname);
+    if (!subdomain) {
         return false;
     }
 
-    var client_id = match[1];
+    var client_id = subdomain;
     var client = clients[client_id];
 
     // no such subdomain

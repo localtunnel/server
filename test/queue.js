@@ -61,7 +61,7 @@ test('query localtunnel server w/ ident', function(done) {
         port: lt_server_port,
         agent: false,
         headers: {
-            host: hostname
+            host: hostname + '.tld'
         },
         path: '/'
     }

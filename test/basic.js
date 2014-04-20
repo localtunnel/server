@@ -15,6 +15,33 @@ test('setup localtunnel server', function(done) {
     });
 });
 
+test('landing page', function(done) {
+    var opt = {
+        host: 'localhost',
+        port: lt_server_port,
+        headers: {
+            host: 'example.com'
+        },
+        path: '/'
+    }
+
+    var req = http.request(opt, function(res) {
+        res.setEncoding('utf8');
+        var body = '';
+
+        res.on('data', function(chunk) {
+            body += chunk;
+        });
+
+        res.on('end', function() {
+            assert(body.indexOf('<h2>expose yourself to the world</h2>') > 0);
+            done();
+        });
+    });
+
+    req.end();
+});
+
 test('setup local http server', function(done) {
     var server = http.createServer();
     server.on('request', function(req, res) {
@@ -52,7 +79,7 @@ test('query localtunnel server w/ ident', function(done) {
         host: 'localhost',
         port: lt_server_port,
         headers: {
-            host: hostname
+            host: hostname + '.tld'
         },
         path: '/'
     }
