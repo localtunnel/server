@@ -49,12 +49,6 @@ function maybe_bounce(req, res, bounce) {
         return true;
     }
 
-    ++stats.requests;
-
-    res.once('close', function() {
-        --stats.requests;
-    });
-
     // get client port
     client.next_socket(function(socket, done) {
         // happens when client upstream is disconnected
