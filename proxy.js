@@ -106,6 +106,7 @@ var Proxy = function(opt, cb) {
 
         // close will be emitted after this
         socket.on('error', function(err) {
+            log.error(err);
             socket.end();
         });
 
