@@ -21,9 +21,7 @@ var clients = Object.create(null);
 
 // proxy statistics
 var stats = {
-    requests: 0,
-    waiting: 0,
-    tunnels: 0,
+    tunnels: 0
 };
 
 function maybe_bounce(req, res, bounce) {
