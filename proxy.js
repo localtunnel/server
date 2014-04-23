@@ -106,8 +106,8 @@ var Proxy = function(opt, cb) {
 
         // close will be emitted after this
         socket.on('error', function(err) {
-            log.error(err);
-            socket.end();
+            // we don't log here to avoid logging crap for misbehaving clients
+            socket.destroy();
         });
 
         self.sockets.push(socket);
