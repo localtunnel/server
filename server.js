@@ -81,7 +81,6 @@ function maybe_bounce(req, res, bounce) {
         var stream = bounce(socket, { headers: { connection: 'close' } });
 
         stream.on('error', function(err) {
-            log.error(err);
             socket.destroy();
         });
 
