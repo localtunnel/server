@@ -60,17 +60,18 @@ function maybe_bounce(req, res, bounce) {
 
     // get client port
     client.next_socket(function(socket, done) {
+        done = done || function() {};
+
         // the request already finished or client disconnected
         if (finished) {
             return done();
         }
-
         // happens when client upstream is disconnected
         // we gracefully inform the user and kill their conn
         // without this, the browser will leave some connections open
         // and try to use them again for new requests
         // we cannot have this as we need bouncy to assign the requests again
-        if (!socket) {
+        else if (!socket) {
             res.statusCode = 504;
             res.end();
             req.connection.destroy();
