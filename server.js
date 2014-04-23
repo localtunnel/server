@@ -9,6 +9,7 @@ var makeup = require('makeup');
 var engine = require('engine.io');
 var browserkthx = require('browserkthx');
 var tldjs = require('tldjs');
+var on_finished = require('finished');
 var debug = require('debug')('localtunnel-server');
 
 var Proxy = require('./proxy');
@@ -44,11 +45,26 @@ function maybe_bounce(req, res, bounce) {
     if (!client) {
         res.statusCode = 502;
         res.end('localtunnel error: no active client for \'' + client_id + '\'');
+        req.connection.destroy();
         return true;
     }
 
+    var finished = false;
+    on_finished(res, function(err) {
+        if (err) {
+            return log.error(err);
+        }
+        finished = true;
+        req.connection.destroy();
+    });
+
     // get client port
     client.next_socket(function(socket, done) {
+        // the request already finished or client disconnected
+        if (finished) {
+            return done();
+        }
+
         // happens when client upstream is disconnected
         // we gracefully inform the user and kill their conn
         // without this, the browser will leave some connections open
@@ -64,6 +80,7 @@ function maybe_bounce(req, res, bounce) {
         var stream = bounce(socket, { headers: { connection: 'close' } });
 
         stream.on('error', function(err) {
+            log.error(err);
             socket.destroy();
         });
 
