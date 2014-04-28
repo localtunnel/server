@@ -51,9 +51,6 @@ function maybe_bounce(req, res, bounce) {
 
     var finished = false;
     on_finished(res, function(err) {
-        if (err) {
-            return log.error(err);
-        }
         finished = true;
         req.connection.destroy();
     });
