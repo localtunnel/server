@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 var log = require('bookrc');
+var dotenv = require('dotenv').load();
 var optimist = require('optimist');
 var debug = require('debug')('localtunnel');
 
