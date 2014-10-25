@@ -49,6 +49,8 @@ function maybe_bounce(req, res, bounce) {
         return true;
     }
 
+    // flag if we already finished before we get a socket
+    // we can't respond to these requests
     var finished = false;
     on_finished(res, function(err) {
         finished = true;
@@ -63,6 +65,7 @@ function maybe_bounce(req, res, bounce) {
         if (finished) {
             return done();
         }
+
         // happens when client upstream is disconnected
         // we gracefully inform the user and kill their conn
         // without this, the browser will leave some connections open
@@ -79,11 +82,21 @@ function maybe_bounce(req, res, bounce) {
 
         stream.on('error', function(err) {
             socket.destroy();
+            req.connection.destroy();
+            done();
         });
 
         // return the socket to the client pool
         stream.once('end', function() {
             done();
+        });
+
+        on_finished(res, function(err) {
+            if (err) {
+                req.connection.destroy();
+                socket.destroy();
+                done();
+            }
         });
     });
 
