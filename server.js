@@ -6,7 +6,6 @@ var enchilada = require('enchilada');
 var stylish = require('stylish');
 var makeover = require('makeover');
 var makeup = require('makeup');
-var engine = require('engine.io');
 var browserkthx = require('browserkthx');
 var tldjs = require('tldjs');
 var on_finished = require('finished');
@@ -227,36 +226,6 @@ module.exports = function(opt) {
     var app_port = 0;
     var app_server = app.listen(app_port, function() {
         app_port = app_server.address().port;
-    });
-
-    // connected engine.io sockets for stats updates
-    var eio_sockets = [];
-
-    setInterval(function() {
-        eio_sockets.forEach(function(socket) {
-            socket.send(JSON.stringify(stats));
-        });
-    }, 1000);
-
-    var eio_server = engine.attach(app_server);
-    eio_server.on('connection', function (socket) {
-
-        eio_sockets.push(socket);
-        socket.send(JSON.stringify(stats));
-
-        socket.on('error', function(err) {
-            log.error(err);
-            socket.close();
-        });
-
-        socket.on('close', function() {
-
-            // remove from socket pool so no more updates are sent
-            var idx = eio_sockets.indexOf(socket);
-            if (idx >= 0) {
-                eio_sockets.splice(idx, 1);
-            }
-        });
     });
 
     var server = bouncy(function(req, res, bounce) {
