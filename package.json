@@ -9,28 +9,29 @@
   },
   "dependencies": {
     "book": "1.3.1",
-    "optimist": "0.6.0",
-    "debug": "0.8.0",
+    "optimist": "0.6.1",
+    "debug": "2.1.0",
     "bookrc": "0.0.1",
     "book-git": "0.0.2",
     "book-raven": "1.0.1",
     "browserkthx": "0.0.2",
-    "hbs": "2.4.0",
-    "taters": "0.1.0",
-    "express": "3.4.7",
+    "hbs": "2.7.0",
+    "taters": "1.0.0",
+    "express": "4.10.5",
     "makeup": "0.0.1",
     "enchilada": "0.11.0",
     "bouncy": "3.2.2",
-    "superstack": "0.0.4",
-    "stylish": "0.4.1",
+    "stackup": "0.0.5",
+    "stylish": "0.5.0",
     "makeover": "0.0.1",
-    "tldjs": "1.3.1",
-    "finished": "1.1.2",
-    "dotenv": "0.4.0"
+    "tldjs": "1.5.1",
+    "on-finished": "2.1.1",
+    "localenv": "0.2.2",
+    "serve-favicon": "2.1.7"
   },
   "devDependencies": {
-    "mocha": "1.18.2",
-    "localtunnel": "1.1.2"
+    "mocha": "2.0.1",
+    "localtunnel": "1.5.0"
   },
   "scripts": {
     "test": "mocha --ui qunit --reporter list -- test",

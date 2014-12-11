@@ -8,13 +8,14 @@ var makeover = require('makeover');
 var makeup = require('makeup');
 var browserkthx = require('browserkthx');
 var tldjs = require('tldjs');
-var on_finished = require('finished');
+var on_finished = require('on-finished');
+var favicon = require('serve-favicon');
 var debug = require('debug')('localtunnel-server');
 
 var Proxy = require('./proxy');
 var rand_id = require('./lib/rand_id');
 
-var kProduction = process.env.NODE_ENV === 'production';
+var PRODUCTION = process.env.NODE_ENV === 'production';
 
 // id -> client http server
 var clients = Object.create(null);
@@ -145,15 +146,17 @@ module.exports = function(opt) {
     app.set('views', __dirname + '/views');
     app.engine('html', require('hbs').__express);
 
-    app.use(express.favicon());
+    taters(app, {
+        cache: PRODUCTION
+    });
 
+    app.use(favicon(__dirname + '/static/favicon.ico'));
     app.use(browserkthx({ ie: '< 9' }));
-    app.use(taters({ cache: kProduction }));
 
     app.use(stylish({
         src: __dirname + '/static/',
-        compress: kProduction,
-        cache: kProduction,
+        compress: PRODUCTION,
+        cache: PRODUCTION,
         setup: function(stylus) {
             return stylus.use(makeover());
         }
@@ -161,14 +164,11 @@ module.exports = function(opt) {
 
     app.use(enchilada({
         src: __dirname + '/static/',
-        compress: kProduction,
-        cache: kProduction
+        compress: PRODUCTION,
+        cache: PRODUCTION
     }));
 
-    app.use('/css/widgets.css', makeup(__dirname + '/static/css/widgets.css'));
     app.use(express.static(__dirname + '/static'));
-
-    app.use(app.router);
 
     app.get('/', function(req, res, next) {
         if (req.query['new'] === undefined) {
