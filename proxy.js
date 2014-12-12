@@ -33,6 +33,14 @@ var Proxy = function(opt, cb) {
         });
     });
 
+    client_server.on('error', function(err) {
+        if (err.code == 'ECONNRESET' || err.code == 'ETIMEDOUT') {
+            return;
+        }
+
+        log.error(err);
+    });
+
     // track initial user connection setup
     var conn_timeout;
 
@@ -117,10 +125,6 @@ var Proxy = function(opt, cb) {
             debug('handling queued request');
             self.next_socket(wait_cb);
         }
-    });
-
-    client_server.on('error', function(err) {
-        log.error(err);
     });
 };
 
