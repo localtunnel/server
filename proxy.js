@@ -21,17 +21,6 @@ var Proxy = function(opt, cb) {
 
     // new tcp server to service requests for this client
     var client_server = net.createServer();
-    client_server.listen(function() {
-        var port = client_server.address().port;
-        debug('tcp server listening on port: %d', port);
-
-        cb(null, {
-            // port for lt client tcp connections
-            port: port,
-            // maximum number of tcp connections allowed by lt client
-            max_conn_count: max_tcp_sockets
-        });
-    });
 
     client_server.on('error', function(err) {
         if (err.code == 'ECONNRESET' || err.code == 'ETIMEDOUT') {
@@ -79,7 +68,6 @@ var Proxy = function(opt, cb) {
 
     // new tcp connection from lt client
     client_server.on('connection', function(socket) {
-
         // no more socket connections allowed
         if (self.sockets.length >= max_tcp_sockets) {
             return socket.end();
@@ -125,6 +113,18 @@ var Proxy = function(opt, cb) {
             debug('handling queued request');
             self.next_socket(wait_cb);
         }
+    });
+
+    client_server.listen(function() {
+        var port = client_server.address().port;
+        debug('tcp server listening on port: %d', port);
+
+        cb(null, {
+            // port for lt client tcp connections
+            port: port,
+            // maximum number of tcp connections allowed by lt client
+            max_conn_count: max_tcp_sockets
+        });
     });
 };
 
