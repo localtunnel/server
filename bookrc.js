@@ -1,6 +1,5 @@
 /// bookrc logging setup
 var log = require('book').default();
-require('stackup');
 
 log.use(require('book-git')(__dirname));
 log.use(require('book-raven')(process.env.SENTRY_DSN));

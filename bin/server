@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+require('stackup');
 var log = require('bookrc');
 var localenv = require('localenv');
 var optimist = require('optimist');

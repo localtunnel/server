@@ -53,6 +53,10 @@ function maybe_bounce(req, res, bounce) {
     // we can't respond to these requests
     var finished = false;
     on_finished(res, function(err) {
+        if (req.headers['upgrade'] == 'websocket') {
+            return;
+        }
+
         finished = true;
         req.connection.destroy();
     });
