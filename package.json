@@ -25,7 +25,7 @@
     "stylish": "0.5.0",
     "makeover": "0.0.1",
     "tldjs": "1.5.1",
-    "on-finished": "2.1.1",
+    "on-finished": "2.2.0",
     "localenv": "0.2.2",
     "serve-favicon": "2.1.7"
   },
