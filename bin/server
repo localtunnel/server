@@ -1,21 +1,9 @@
 #!/usr/bin/env node
 
-var cluster = require('cluster');
-var debug = require('debug')('localtunnel');
-var localenv = require('localenv');
-
-if (cluster.isMaster) {
-    cluster.on('exit', function() {
-        debug('child died, restarting');
-        cluster.fork();
-    });
-
-    cluster.fork();
-    return;
-}
-
 require('stackup');
 var log = require('bookrc');
+var localenv = require('localenv');
+var debug = require('debug')('localtunnel');
 var optimist = require('optimist');
 
 var argv = optimist
