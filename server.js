@@ -25,6 +25,9 @@ var stats = {
     tunnels: 0
 };
 
+// holds the CLI options
+var options;
+
 function maybe_bounce(req, res, bounce) {
     // without a hostname, we won't know who the request is for
     var hostname = req.headers.host;
@@ -33,11 +36,14 @@ function maybe_bounce(req, res, bounce) {
     }
 
     var subdomain = tldjs.getSubdomain(hostname);
-    if (!subdomain) {
+    if (!subdomain || subdomain === options.subdomain) {
         return false;
     }
 
     var client_id = subdomain;
+    if (options.subdomain) {
+        client_id = client_id.replace('.' + options.subdomain, '');
+    }
     var client = clients[client_id];
 
     // no such subdomain
@@ -140,9 +146,9 @@ function new_client(id, opt, cb) {
 }
 
 module.exports = function(opt) {
-    opt = opt || {};
+    options = opt || {};
 
-    var schema = opt.secure ? 'https' : 'http';
+    var schema = options.secure ? 'https' : 'http';
 
     var app = express();
 
@@ -181,7 +187,7 @@ module.exports = function(opt) {
 
         var req_id = rand_id();
         debug('making new client with id %s', req_id);
-        new_client(req_id, opt, function(err, info) {
+        new_client(req_id, options, function(err, info) {
             if (err) {
                 res.statusCode = 500;
                 return res.end(err.message);
@@ -208,7 +214,7 @@ module.exports = function(opt) {
         }
 
         debug('making new client with id %s', req_id);
-        new_client(req_id, opt, function(err, info) {
+        new_client(req_id, options, function(err, info) {
             if (err) {
                 return next(err);
             }
