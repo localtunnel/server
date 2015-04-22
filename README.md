@@ -22,7 +22,7 @@ cd localtunnel
 npm install
 
 // server set to run on port 1234
-bin/server --port 1324
+bin/server --port 1234
 ```
 
 The localtunnel server is now running and waiting for client requests on port 1234. You will most likely want to setup a reverse proxy to listen on port 80 (or start localtunnel on port 80 directly).
