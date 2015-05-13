@@ -5,7 +5,7 @@ var localtunnel = require('localtunnel');
 
 var localtunnel_server = require('../server')();
 
-var lt_server_port
+var lt_server_port;
 
 test('setup localtunnel server', function(done) {
     var server = localtunnel_server.listen(function() {
@@ -79,7 +79,7 @@ test('query localtunnel server w/ ident', function(done) {
         host: 'localhost',
         port: lt_server_port,
         headers: {
-            host: hostname + '.tld'
+            host: hostname + ':' + lt_server_port
         },
         path: '/'
     }
@@ -112,7 +112,7 @@ test('request specific domain', function(done) {
     localtunnel(test._fake_port, opt, function(err, tunnel) {
         assert.ifError(err);
         var url = tunnel.url;
-        assert.ok(new RegExp('^http:\/\/.*localhost:' + lt_server_port + '$').test(url));
+        assert.ok(new RegExp('^http:\/\/.*\.localhost:' + lt_server_port + '$').test(url));
         test._fake_url = url;
         done(err);
     });
