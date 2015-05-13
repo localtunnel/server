@@ -7,7 +7,6 @@ var stylish = require('stylish');
 var makeover = require('makeover');
 var makeup = require('makeup');
 var browserkthx = require('browserkthx');
-var tldjs = require('tldjs');
 var on_finished = require('on-finished');
 var favicon = require('serve-favicon');
 var debug = require('debug')('localtunnel-server');
@@ -32,21 +31,12 @@ function maybe_bounce(req, res, bounce) {
         return false;
     }
 
-    var subdomain = tldjs.getSubdomain(hostname);
-    if (!subdomain) {
-        return false;
-    }
-
-    var client_id = subdomain;
+    var client_id = hostname;
     var client = clients[client_id];
 
-    // no such subdomain
-    // we use 502 error to the client to signify we can't service the request
+    // no such client
     if (!client) {
-        res.statusCode = 502;
-        res.end('localtunnel error: no active client for \'' + client_id + '\'');
-        req.connection.destroy();
-        return true;
+        return false;
     }
 
     // flag if we already finished before we get a socket
@@ -180,14 +170,15 @@ module.exports = function(opt) {
         }
 
         var req_id = rand_id();
-        debug('making new client with id %s', req_id);
-        new_client(req_id, opt, function(err, info) {
+        var client_domain = req_id + '.' + req.headers.host;
+        debug('making new client with domain %s', client_domain);
+        new_client(client_domain, opt, function(err, info) {
             if (err) {
                 res.statusCode = 500;
                 return res.end(err.message);
             }
 
-            var url = schema + '://' + req_id + '.' + req.headers.host;
+            var url = schema + '://' + client_domain;
             info.url = url;
             res.json(info);
         });
@@ -207,13 +198,14 @@ module.exports = function(opt) {
             return next(err);
         }
 
-        debug('making new client with id %s', req_id);
-        new_client(req_id, opt, function(err, info) {
+        var client_domain = req_id + '.' + req.headers.host;
+        debug('making new client with domain %s', client_domain);
+        new_client(client_domain, opt, function(err, info) {
             if (err) {
                 return next(err);
             }
 
-            var url = schema + '://' + req_id + '.' + req.headers.host;
+            var url = schema + '://' + client_domain;
             info.url = url;
             res.json(info);
         });
