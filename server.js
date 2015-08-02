@@ -1,16 +1,25 @@
 var log = require('bookrc');
 var express = require('express');
 var bouncy = require('bouncy');
-var taters = require('taters');
-var enchilada = require('enchilada');
-var stylish = require('stylish');
-var makeover = require('makeover');
-var makeup = require('makeup');
-var browserkthx = require('browserkthx');
 var tldjs = require('tldjs');
 var on_finished = require('on-finished');
-var favicon = require('serve-favicon');
 var debug = require('debug')('localtunnel-server');
+var http_proxy = require('http-proxy');
+
+var proxy = http_proxy.createProxyServer({
+    target: 'http://localtunnel.github.io'
+});
+
+proxy.on('error', function(err) {
+    log.error(err);
+});
+
+proxy.on('proxyReq', function(proxyReq, req, res, options) {
+    // rewrite the request so it hits the correct url on github
+    // also make sure host header is what we expect
+    proxyReq.path = '/www' + proxyReq.path;
+    proxyReq.setHeader('host', 'localtunnel.github.io');
+});
 
 var Proxy = require('./proxy');
 var rand_id = require('./lib/rand_id');
@@ -146,34 +155,6 @@ module.exports = function(opt) {
 
     var app = express();
 
-    app.set('view engine', 'html');
-    app.set('views', __dirname + '/views');
-    app.engine('html', require('hbs').__express);
-
-    taters(app, {
-        cache: PRODUCTION
-    });
-
-    app.use(favicon(__dirname + '/static/favicon.ico'));
-    app.use(browserkthx({ ie: '< 9' }));
-
-    app.use(stylish({
-        src: __dirname + '/static/',
-        compress: PRODUCTION,
-        cache: PRODUCTION,
-        setup: function(stylus) {
-            return stylus.use(makeover());
-        }
-    }));
-
-    app.use(enchilada({
-        src: __dirname + '/static/',
-        compress: PRODUCTION,
-        cache: PRODUCTION
-    }));
-
-    app.use(express.static(__dirname + '/static'));
-
     app.get('/', function(req, res, next) {
         if (req.query['new'] === undefined) {
             return next();
@@ -194,7 +175,15 @@ module.exports = function(opt) {
     });
 
     app.get('/', function(req, res, next) {
-        return res.render('index');
+        proxy.web(req, res);
+    });
+
+    app.get('/assets/*', function(req, res, next) {
+        proxy.web(req, res);
+    });
+
+    app.get('/favicon.ico', function(req, res, next) {
+        proxy.web(req, res);
     });
 
     app.get('/:req_id', function(req, res, next) {
