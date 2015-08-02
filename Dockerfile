@@ -1,11 +1,16 @@
-FROM node:0.10.33
+FROM mhart/alpine-iojs:2.5.0
 
-RUN mkdir -p /usr/src/app
-WORKDIR /usr/src/app
+RUN mkdir -p /app
+WORKDIR /app
 
-ADD package.json /usr/src/app/
-RUN npm install --production
-ADD . /usr/src/app
+ADD package.json /app/
+
+RUN apk add --update make git g++ python && \
+    npm install --production && \
+    apk del git make g++ python && \
+    rm -rf /tmp/* /root/.npm /root/.node-gyp
+
+ADD . /app
 
 ENV NODE_ENV production
 ENTRYPOINT ["bin/server"]
