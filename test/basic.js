@@ -34,7 +34,7 @@ test('landing page', function(done) {
         });
 
         res.on('end', function() {
-            assert(body.indexOf('<h2>expose yourself to the world</h2>') > 0);
+            assert(body.indexOf('<title>Localtunnel ~ Expose yourself to the world</title>') > 0);
             done();
         });
     });
