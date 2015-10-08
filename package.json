@@ -3,6 +3,7 @@
   "name": "localtunnel-server",
   "description": "expose localhost to the world",
   "version": "0.0.8",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git://github.com/shtylman/localtunnel-server.git"
