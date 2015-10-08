@@ -9,7 +9,7 @@ var localtunnel_server = require('../server')();
 
 var lt_server_port
 
-test('setup localtunnel server', function(done) {
+test('set up localtunnel server', function(done) {
     var server = localtunnel_server.listen(function() {
         lt_server_port = server.address().port;
         console.log('lt server on:', lt_server_port);
@@ -17,7 +17,7 @@ test('setup localtunnel server', function(done) {
     });
 });
 
-test('setup local websocket server', function(done) {
+test('set up local websocket server', function(done) {
 
     var wss = new WebSocketServer({ port: 0 }, function() {
         test._fake_port = wss._server.address().port;
@@ -31,7 +31,7 @@ test('setup local websocket server', function(done) {
     });
 });
 
-test('setup localtunnel client', function(done) {
+test('set up localtunnel client', function(done) {
     var opt = {
         host: 'http://localhost:' + lt_server_port,
     };
