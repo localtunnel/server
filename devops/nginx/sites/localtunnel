@@ -35,7 +35,7 @@ server {
     listen 443 default_server ssl spdy;
     listen [::]:443 default_server ipv6only=on;
 
-    server_name .localtuunel.me;
+    server_name .localtunnel.me;
 
     ssl on;
 

@@ -7,7 +7,7 @@ var localtunnel_server = require('../server')();
 
 var lt_server_port
 
-test('setup localtunnel server', function(done) {
+test('set up localtunnel server', function(done) {
     var server = localtunnel_server.listen(function() {
         lt_server_port = server.address().port;
         console.log('lt server on:', lt_server_port);
@@ -42,7 +42,7 @@ test('landing page', function(done) {
     req.end();
 });
 
-test('setup local http server', function(done) {
+test('set up local http server', function(done) {
     var server = http.createServer();
     server.on('request', function(req, res) {
         res.write('foo');
@@ -57,7 +57,7 @@ test('setup local http server', function(done) {
     });
 });
 
-test('setup localtunnel client', function(done) {
+test('set up localtunnel client', function(done) {
     var opt = {
         host: 'http://localhost:' + lt_server_port,
     };
