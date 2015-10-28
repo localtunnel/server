@@ -1,4 +1,4 @@
-FROM mhart/alpine-iojs:2.5.0
+FROM mhart/alpine-node:4.2.1
 
 RUN mkdir -p /app
 WORKDIR /app
