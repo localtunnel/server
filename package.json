@@ -26,7 +26,7 @@
   },
   "devDependencies": {
     "mocha": "2.0.1",
-    "localtunnel": "1.5.0"
+    "localtunnel": "1.8.0"
   },
   "scripts": {
     "test": "mocha --ui qunit --reporter list -- test",
