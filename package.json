@@ -21,12 +21,12 @@
     "on-finished": "2.2.0",
     "optimist": "0.6.1",
     "stackup": "0.0.5",
-    "tldjs": "1.5.1",
-    "ws": "0.6.5"
+    "tldjs": "1.5.1"
   },
   "devDependencies": {
     "mocha": "2.0.1",
-    "localtunnel": "1.8.0"
+    "localtunnel": "1.8.0",
+    "ws": "0.6.5"
   },
   "scripts": {
     "test": "mocha --ui qunit --reporter list -- test",
