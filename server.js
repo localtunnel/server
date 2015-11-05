@@ -1,10 +1,12 @@
 var log = require('bookrc');
 var express = require('express');
-var bouncy = require('bouncy');
 var tldjs = require('tldjs');
 var on_finished = require('on-finished');
 var debug = require('debug')('localtunnel-server');
 var http_proxy = require('http-proxy');
+var http = require('http');
+
+var BindingAgent = require('./lib/BindingAgent');
 
 var proxy = http_proxy.createProxyServer({
     target: 'http://localtunnel.github.io'
@@ -34,7 +36,7 @@ var stats = {
     tunnels: 0
 };
 
-function maybe_bounce(req, res, bounce) {
+function maybe_bounce(req, res, sock, head) {
     // without a hostname, we won't know who the request is for
     var hostname = req.headers.host;
     if (!hostname) {
@@ -58,17 +60,23 @@ function maybe_bounce(req, res, bounce) {
         return true;
     }
 
-    // flag if we already finished before we get a socket
-    // we can't respond to these requests
     var finished = false;
-    on_finished(res, function(err) {
-        if (req.headers['upgrade'] == 'websocket') {
-            return;
-        }
+    if (sock) {
+        sock.once('end', function() {
+            finished = true;
+        });
+    }
 
-        finished = true;
-        req.connection.destroy();
-    });
+    if (res) {
+        // flag if we already finished before we get a socket
+        // we can't respond to these requests
+        on_finished(res, function(err) {
+            finished = true;
+            req.connection.destroy();
+        });
+    }
+
+    // TODO add a timeout, if we run out of sockets, then just 502
 
     // get client port
     client.next_socket(function(socket, done) {
@@ -91,26 +99,46 @@ function maybe_bounce(req, res, bounce) {
             return;
         }
 
-        var stream = bounce(socket, { headers: { connection: 'close' } });
-
-        stream.on('error', function(err) {
-            socket.destroy();
-            req.connection.destroy();
-            done();
-        });
-
-        // return the socket to the client pool
-        stream.once('end', function() {
-            done();
-        });
-
-        on_finished(res, function(err) {
-            if (err) {
-                req.connection.destroy();
-                socket.destroy();
-                done();
+        // websocket requests are special in that we simply re-create the header info
+        // and directly pipe the socket data
+        // avoids having to rebuild the request and handle upgrades via the http client
+        if (res === null) {
+            var arr = [req.method + ' ' + req.url + ' HTTP/' + req.httpVersion];
+            for (var i=0 ; i < (req.rawHeaders.length-1) ; i+=2) {
+                arr.push(req.rawHeaders[i] + ': ' + req.rawHeaders[i+1]);
             }
+
+            arr.push('');
+            arr.push('');
+
+            socket.pipe(sock).pipe(socket);
+            socket.write(arr.join('\r\n'));
+            socket.once('end', function() {
+                done();
+            });
+
+            return;
+        }
+
+        var agent = new BindingAgent({
+            socket: socket
         });
+
+        var opt = {
+            path: req.url,
+            agent: agent,
+            method: req.method,
+            headers: req.headers
+        };
+
+        var client_req = http.request(opt, function(client_res) {
+            client_res.pipe(res);
+            on_finished(client_res, function(err) {
+                done();
+            });
+        });
+
+        req.pipe(client_req);
     });
 
     return true;
@@ -187,7 +215,7 @@ module.exports = function(opt) {
     });
 
     app.get('/:req_id', function(req, res, next) {
-        var req_id = req.param('req_id');
+        var req_id = req.params.req_id;
 
         // limit requested hostnames to 20 characters
         if (! /^[a-z0-9]{4,20}$/.test(req_id)) {
@@ -216,20 +244,23 @@ module.exports = function(opt) {
         });
     });
 
-    var app_port = 0;
-    var app_server = app.listen(app_port, function() {
-        app_port = app_server.address().port;
-    });
+    var server = http.createServer();
 
-    var server = bouncy(function(req, res, bounce) {
+    server.on('request', function(req, res) {
         debug('request %s', req.url);
-
-        // if we should bounce this request, then don't send to our server
-        if (maybe_bounce(req, res, bounce)) {
+        if (maybe_bounce(req, res, null, null)) {
             return;
         };
 
-        bounce(app_port);
+        app(req, res);
+    });
+
+    server.on('upgrade', function(req, socket, head) {
+        if (maybe_bounce(req, null, socket, head)) {
+            return;
+        };
+
+        socket.destroy();
     });
 
     return server;

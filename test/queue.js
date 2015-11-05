@@ -3,6 +3,8 @@ var url = require('url');
 var assert = require('assert');
 var localtunnel = require('localtunnel');
 
+suite('queue');
+
 var localtunnel_server = require('../server')({
     max_tcp_sockets: 1
 });
@@ -10,15 +12,14 @@ var localtunnel_server = require('../server')({
 var server;
 var lt_server_port;
 
-test('set up localtunnel server', function(done) {
+before('set up localtunnel server', function(done) {
     var lt_server = localtunnel_server.listen(function() {
         lt_server_port = lt_server.address().port;
-        console.log('lt server on:', lt_server_port);
         done();
     });
 });
 
-test('set up local http server', function(done) {
+before('set up local http server', function(done) {
     server = http.createServer();
     server.on('request', function(req, res) {
         // respond sometime later
@@ -32,12 +33,11 @@ test('set up local http server', function(done) {
         var port = server.address().port;
 
         test._fake_port = port;
-        console.log('local http on:', port);
         done();
     });
 });
 
-test('set up localtunnel client', function(done) {
+before('set up localtunnel client', function(done) {
     var opt = {
         host: 'http://localhost:' + lt_server_port,
     };
@@ -97,7 +97,7 @@ test('query localtunnel server w/ ident', function(done) {
     }
 });
 
-test('shutdown', function() {
+after('shutdown', function() {
     localtunnel_server.close();
 });
 
