@@ -20,6 +20,10 @@ var argv = optimist
         default: 10,
         describe: 'maximum number of tcp sockets each client is allowed to establish at one time (the tunnels)'
     })
+    .options('sub', {
+        default: false,
+        describe: 'use this flag to indicate that server runs in a subdomain'
+    })
     .argv;
 
 if (argv.help) {
@@ -29,7 +33,8 @@ if (argv.help) {
 
 var server = require('../server')({
     max_tcp_sockets: argv['max-sockets'],
-    secure: argv.secure
+    secure: argv.secure,
+    sub: argv.sub,
 });
 
 server.listen(argv.port, function() {
