@@ -217,9 +217,9 @@ module.exports = function(opt) {
     app.get('/:req_id', function(req, res, next) {
         var req_id = req.params.req_id;
 
-        // limit requested hostnames to 20 characters
-        if (! /^[a-z0-9]{4,20}$/.test(req_id)) {
-            var err = new Error('Invalid subdomain. Subdomains must be lowercase and between 4 and 20 alphanumeric characters.');
+        // limit requested hostnames to 63 characters
+        if (! /^[a-z0-9]{4,63}$/.test(req_id)) {
+            var err = new Error('Invalid subdomain. Subdomains must be lowercase and between 4 and 63 alphanumeric characters.');
             err.statusCode = 403;
             return next(err);
         }
