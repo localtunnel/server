@@ -47,8 +47,7 @@ function maybe_bounce(req, res, sock, head) {
     if (!subdomain) {
         return false;
     }
-
-    var client_id = subdomain;
+    var client_id = subdomain.split('.')[0];
     var client = clients[client_id];
 
     // no such subdomain
