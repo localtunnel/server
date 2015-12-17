@@ -132,6 +132,9 @@ function maybe_bounce(req, res, sock, head) {
         };
 
         var client_req = http.request(opt, function(client_res) {
+            // write response code and headers
+            res.writeHead(client_res.statusCode, client_res.headers);
+            
             client_res.pipe(res);
             on_finished(client_res, function(err) {
                 done();
