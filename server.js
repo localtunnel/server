@@ -62,7 +62,13 @@ function maybe_bounce(req, res, sock, head) {
 
     var finished = false;
     if (sock) {
-        sock.once('end', function() {
+        sock.once('error', function(err) {
+            console.log('sock error', err);
+            finished = true;
+        });
+
+        sock.once('close', function() {
+            console.log('finished');
             finished = true;
         });
     }
@@ -99,10 +105,15 @@ function maybe_bounce(req, res, sock, head) {
             return;
         }
 
+        socket.once('error', function(err) {
+            console.log('socket error', err);
+        });
+
         // websocket requests are special in that we simply re-create the header info
         // and directly pipe the socket data
         // avoids having to rebuild the request and handle upgrades via the http client
         if (res === null) {
+            console.log('websocket');
             var arr = [req.method + ' ' + req.url + ' HTTP/' + req.httpVersion];
             for (var i=0 ; i < (req.rawHeaders.length-1) ; i+=2) {
                 arr.push(req.rawHeaders[i] + ': ' + req.rawHeaders[i+1]);
@@ -113,7 +124,8 @@ function maybe_bounce(req, res, sock, head) {
 
             socket.pipe(sock).pipe(socket);
             socket.write(arr.join('\r\n'));
-            socket.once('end', function() {
+            socket.once('close', function() {
+                console.log('release websocket');
                 done();
             });
 
@@ -131,17 +143,23 @@ function maybe_bounce(req, res, sock, head) {
             headers: req.headers
         };
 
+        console.log('req', req.url);
         var client_req = http.request(opt, function(client_res) {
-            // write response code and headers
-            res.writeHead(client_res.statusCode, client_res.headers);
-            
+            res.writeHead(client_res.statusCode, client_res.statusMessage, client_res.headers);
+
             client_res.pipe(res);
             on_finished(client_res, function(err) {
+                console.log('release client_req', req.url);
                 done();
             });
         });
 
         req.pipe(client_req);
+
+        client_req.on('error', function(err) { // ??
+            console.log('client request erorr', err);
+            done();
+        });
     });
 
     return true;
