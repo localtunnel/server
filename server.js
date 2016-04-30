@@ -36,6 +36,8 @@ var stats = {
     tunnels: 0
 };
 
+var sub = false;
+
 function maybe_bounce(req, res, sock, head) {
     // without a hostname, we won't know who the request is for
     var hostname = req.headers.host;
@@ -44,6 +46,12 @@ function maybe_bounce(req, res, sock, head) {
     }
 
     var subdomain = tldjs.getSubdomain(hostname);
+    // if we're serving from a subdomain do a proper check
+    if (sub) {
+        var subsub = (subdomain || '').split('.');
+        subdomain = subsub.length > 1 ? subsub[0] : '';
+    }
+
     if (!subdomain) {
         return false;
     }
@@ -134,7 +142,7 @@ function maybe_bounce(req, res, sock, head) {
         var client_req = http.request(opt, function(client_res) {
             // write response code and headers
             res.writeHead(client_res.statusCode, client_res.headers);
-            
+
             client_res.pipe(res);
             on_finished(client_res, function(err) {
                 done();
@@ -183,6 +191,8 @@ module.exports = function(opt) {
     opt = opt || {};
 
     var schema = opt.secure ? 'https' : 'http';
+
+    sub = opt.sub || false;
 
     var app = express();
 
