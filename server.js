@@ -51,6 +51,23 @@ function maybe_bounce(req, res, sock, head) {
     var client_id = subdomain;
     var client = clients[client_id];
 
+    if(!client || subdomain.indexOf('.') !== -1) {
+
+        subdomain = subdomain.split('.');
+
+        for(var i = 0; i <= subdomain.length; i++) {
+
+            client_id = subdomain.slice(0, i).join('.');
+            client = clients[client_id];
+
+            if(client) {
+                break;
+            }
+
+        }
+
+    }
+
     // no such subdomain
     // we use 502 error to the client to signify we can't service the request
     if (!client) {
@@ -134,7 +151,7 @@ function maybe_bounce(req, res, sock, head) {
         var client_req = http.request(opt, function(client_res) {
             // write response code and headers
             res.writeHead(client_res.statusCode, client_res.headers);
-            
+
             client_res.pipe(res);
             on_finished(client_res, function(err) {
                 done();
@@ -148,7 +165,6 @@ function maybe_bounce(req, res, sock, head) {
 }
 
 function new_client(id, opt, cb) {
-
     // can't ask for id already is use
     // TODO check this new id again
     if (clients[id]) {
@@ -181,7 +197,6 @@ function new_client(id, opt, cb) {
 
 module.exports = function(opt) {
     opt = opt || {};
-
     var schema = opt.secure ? 'https' : 'http';
 
     var app = express();
@@ -251,7 +266,8 @@ module.exports = function(opt) {
 
     server.on('request', function(req, res) {
         debug('request %s', req.url);
-        if (maybe_bounce(req, res, null, null)) {
+        var configuredHost = opt.host && [opt.host, opt.port].join(':');
+        if (configuredHost !== req.headers.host && maybe_bounce(req, res, null, null)) {
             return;
         };
 

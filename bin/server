@@ -16,6 +16,9 @@ var argv = optimist
         default: '80',
         describe: 'listen on this port for outside requests'
     })
+    .options('host', {
+        describe: 'listen on this host for outside requests'
+    })
     .options('max-sockets', {
         default: 10,
         describe: 'maximum number of tcp sockets each client is allowed to establish at one time (the tunnels)'
@@ -29,7 +32,9 @@ if (argv.help) {
 
 var server = require('../server')({
     max_tcp_sockets: argv['max-sockets'],
-    secure: argv.secure
+    secure: argv.secure,
+    port: argv.port,
+    host: argv.host
 });
 
 server.listen(argv.port, function() {
@@ -37,4 +42,3 @@ server.listen(argv.port, function() {
 });
 
 // vim: ft=javascript
-
