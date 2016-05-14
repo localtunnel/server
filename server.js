@@ -266,7 +266,7 @@ module.exports = function(opt) {
 
     server.on('request', function(req, res) {
         debug('request %s', req.url);
-        var configuredHost = opt.host && [opt.host, opt.port].join(':');
+        var configuredHost = opt.host;
         if (configuredHost !== req.headers.host && maybe_bounce(req, res, null, null)) {
             return;
         };
