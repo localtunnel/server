@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 
-require('stackup');
-var log = require('bookrc');
-var localenv = require('localenv');
-var debug = require('debug')('localtunnel');
-var optimist = require('optimist');
+require('localenv');
+require('babel-register');
 
-var argv = optimist
+const log = require('bookrc');
+const debug = require('debug')('localtunnel');
+const optimist = require('optimist');
+
+const argv = optimist
     .usage('Usage: $0 --port [num]')
     .options('secure', {
         default: false,
@@ -27,13 +28,17 @@ if (argv.help) {
     process.exit();
 }
 
-var server = require('../server')({
+const server = require('../server')({
     max_tcp_sockets: argv['max-sockets'],
     secure: argv.secure
 });
 
-server.listen(argv.port, function() {
+server.listen(argv.port, () => {
     debug('server listening on port: %d', server.address().port);
+});
+
+process.on('SIGINT', () => {
+    process.exit();
 });
 
 // vim: ft=javascript
