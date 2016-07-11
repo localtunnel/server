@@ -98,14 +98,25 @@ function maybe_bounce(req, res, sock, head) {
             return;
         }
 
-        // happens when client upstream is disconnected
+        // happens when client upstream is disconnected (or disconnects)
+        // and the proxy iterates the waiting list and clears the callbacks
         // we gracefully inform the user and kill their conn
         // without this, the browser will leave some connections open
         // and try to use them again for new requests
         // we cannot have this as we need bouncy to assign the requests again
+        // TODO(roman) we could instead have a timeout above
+        // if no socket becomes available within some time,
+        // we just tell the user no resource available to service request
         else if (!socket) {
-            res.statusCode = 504;
-            res.end();
+            if (res) {
+                res.statusCode = 504;
+                res.end();
+            }
+
+            if (sock) {
+                sock.destroy();
+            }
+
             req.connection.destroy();
             return;
         }
