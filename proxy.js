@@ -128,7 +128,11 @@ Proxy.prototype._handle_socket = function(socket) {
     });
 
     self.sockets.push(socket);
+    self._process_waiting();
+};
 
+Proxy.prototype._process_waiting = function() {
+    const self = this;
     const wait_cb = self.waiting.shift();
     if (wait_cb) {
         self.debug('handling queued request');
@@ -176,12 +180,7 @@ Proxy.prototype.next_socket = function(handler) {
             return;
         }
 
-        const wait = self.waiting.shift();
-        self.debug('processing queued cb');
-        if (wait) {
-            self.next_socket(cb);
-            return;
-        }
+        self._process_waiting();
     });
 };
 
