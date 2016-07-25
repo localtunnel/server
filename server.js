@@ -249,13 +249,15 @@ module.exports = function(opt) {
     });
 
     app.get('/', function(req, res, next) {
-        proxy.web(req, res);
+        res.redirect('https://localtunnel.github.io/www/');
     });
 
+    // TODO(roman) remove after deploying redirect above
     app.get('/assets/*', function(req, res, next) {
         proxy.web(req, res);
     });
 
+    // TODO(roman) remove after deploying redirect above
     app.get('/favicon.ico', function(req, res, next) {
         proxy.web(req, res);
     });
