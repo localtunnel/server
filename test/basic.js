@@ -35,7 +35,7 @@ test('landing page', function(done) {
         });
 
         res.on('end', function() {
-            assert(body.indexOf('<title>Localtunnel ~ Expose yourself to the world</title>') > 0);
+            assert(body.indexOf('Redirecting to https://localtunnel.github.io/www/') > 0);
             done();
         });
     });
