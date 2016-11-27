@@ -301,6 +301,15 @@ module.exports = function(opt) {
     const server = http.createServer();
 
     server.on('request', function(req, res) {
+
+        req.on('error', (err) => {
+            console.error('request', err);
+        });
+
+        res.on('error', (err) => {
+            console.error('response', err);
+        });
+
         debug('request %s', req.url);
         if (maybe_bounce(req, res, null, null)) {
             return;
@@ -310,6 +319,14 @@ module.exports = function(opt) {
     });
 
     server.on('upgrade', function(req, socket, head) {
+        req.on('error', (err) => {
+            console.error('ws req', err);
+        });
+
+        socket.on('error', (err) => {
+            console.error('ws socket', err);
+        });
+
         if (maybe_bounce(req, null, socket, head)) {
             return;
         };

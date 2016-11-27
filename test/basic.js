@@ -28,16 +28,8 @@ test('landing page', function(done) {
 
     var req = http.request(opt, function(res) {
         res.setEncoding('utf8');
-        var body = '';
-
-        res.on('data', function(chunk) {
-            body += chunk;
-        });
-
-        res.on('end', function() {
-            assert(body.indexOf('Redirecting to https://localtunnel.github.io/www/') > 0);
-            done();
-        });
+        assert.equal(res.headers.location, 'https://localtunnel.github.io/www/')
+        done();
     });
 
     req.end();
