@@ -265,6 +265,7 @@ module.exports = function(opt) {
     app.get('/api/status', function(req, res, next) {
         res.json({
             tunnels: stats.tunnels,
+            mem: process.memoryUsage(),
         });
     });
 
