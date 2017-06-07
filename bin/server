@@ -17,6 +17,10 @@ const argv = optimist
         default: '80',
         describe: 'listen on this port for outside requests'
     })
+    .options('sub-host', {
+        describe: 'additionally listen on these sub hosts for outside requests',
+        type: 'array'
+    })
     .options('max-sockets', {
         default: 10,
         describe: 'maximum number of tcp sockets each client is allowed to establish at one time (the tunnels)'
@@ -30,7 +34,9 @@ if (argv.help) {
 
 const server = require('../server')({
     max_tcp_sockets: argv['max-sockets'],
-    secure: argv.secure
+    secure: argv.secure,
+    port: argv.port,
+    subHost: argv['sub-host']
 });
 
 server.listen(argv.port, () => {

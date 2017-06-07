@@ -4,7 +4,8 @@ var assert = require('assert');
 var localtunnel = require('localtunnel');
 
 var localtunnel_server = require('../server')({
-    max_tcp_sockets: 2
+    max_tcp_sockets: 2,
+    subHost: ['nested.sub']
 });
 
 var lt_server_port
@@ -61,6 +62,40 @@ test('should respond to request', function(done) {
         });
 
         res.on('end', function() {
+            assert.equal(body, 'hello world!');
+            done();
+        });
+    });
+});
+
+test('set up localtunnel client (sub-host)', function (done) {
+    var opt = {
+        host: 'http://nested.sub.host.dev:' + lt_server_port,
+        subdomain: 'txyz'
+    };
+
+    localtunnel(test._fake_port, opt, function (err, tunnel) {
+        assert.ifError(err);
+        var url = tunnel.url;
+        assert.ok(new RegExp('^http:\/\/.*nested.sub.host.dev:' + lt_server_port + '$').test(url));
+        test._fake_url = url;        
+        done(err);
+    });
+});
+
+test('should respond to request (sub-host)', function (done) {
+    var opt = {
+        host: 'txyz.nested.sub.host.dev',
+        port: lt_server_port,
+    };
+    http.get(opt, function (res) {
+        var body = '';
+        res.setEncoding('utf-8');
+        res.on('data', function (chunk) {
+            body += chunk;
+        });
+
+        res.on('end', function () {
             assert.equal(body, 'hello world!');
             done();
         });
