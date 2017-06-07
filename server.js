@@ -50,6 +50,8 @@ function maybe_bounce(req, res, sock, head, opt) {
     let subdomain = tldjs.getSubdomain(hostname);
     
     if (subdomain && opt.subHost) {        
+        const subHosts = Array.isArray(opt.subHost)
+            ? opt.subHost : [opt.subHost]
         const subHost = opt.subHost.reduce((found, sub) => {                        
             return found
                 || (subdomain.slice(-sub.length) == sub ? sub : '')

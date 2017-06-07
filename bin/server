@@ -18,8 +18,7 @@ const argv = optimist
         describe: 'listen on this port for outside requests'
     })
     .options('sub-host', {
-        describe: 'additionally listen on these sub hosts for outside requests',
-        type: 'array'
+        describe: 'additionally listen on this sub host for outside requests (can use this option multiple times)'
     })
     .options('max-sockets', {
         default: 10,
