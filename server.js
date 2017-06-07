@@ -51,8 +51,8 @@ function maybe_bounce(req, res, sock, head, opt) {
     
     if (subdomain && opt.subHost) {        
         const subHosts = Array.isArray(opt.subHost)
-            ? opt.subHost : [opt.subHost]
-        const subHost = opt.subHost.reduce((found, sub) => {                        
+            ? opt.subHost : [opt.subHost]        
+        const subHost = subHosts.reduce((found, sub) => {                        
             return found
                 || (subdomain.slice(-sub.length) == sub ? sub : '')
         }, '')
