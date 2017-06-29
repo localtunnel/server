@@ -9,6 +9,7 @@
     "url": "git://github.com/localtunnel/server.git"
   },
   "dependencies": {
+    "babel-plugin-parser-opts": "1.0.1",
     "babel-plugin-transform-async-to-generator": "6.8.0",
     "babel-plugin-transform-es2015-modules-commonjs": "6.10.3",
     "babel-polyfill": "6.9.1",
