@@ -6,7 +6,8 @@ var WebSocket = require('ws');
 var WebSocketServer = require('ws').Server;
 
 var localtunnel_server = require('../server')({
-    max_tcp_sockets: 2
+    max_tcp_sockets: 2,
+    subHost: ['nested.sub', 'sub']
 });
 
 var lt_server_port
@@ -64,6 +65,33 @@ test('websocket server request', function(done) {
     });
 
     ws.on('message', function(msg) {
+        assert.equal(msg, 'something');
+        done();
+    });
+
+    ws.on('open', function open() {
+        ws.send('something');
+    });
+});
+
+test('set up localtunnel client (sub host)', function (done) {
+    var opt = {
+        host: 'http://sub.host.dev:' + lt_server_port        
+    };
+
+    localtunnel(test._fake_port, opt, function (err, tunnel) {
+        assert.ifError(err);
+        var url = tunnel.url;
+        assert.ok(new RegExp('^http:\/\/.*sub.host.dev:' + lt_server_port + '$').test(url));
+        test._fake_url = url;
+        done(err);
+    });
+});
+
+test('websocket server request (sub-host)', function (done) {
+    var ws = new WebSocket(test._fake_url);
+
+    ws.on('message', function (msg) {
         assert.equal(msg, 'something');
         done();
     });
