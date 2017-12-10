@@ -1,5 +1,5 @@
 import log from 'book';
-import express from 'express';
+import Koa from 'koa';
 import tldjs from 'tldjs';
 import on_finished from 'on-finished';
 import Debug from 'debug';
@@ -24,7 +24,23 @@ const stats = {
 
 // handle proxying a request to a client
 // will wait for a tunnel socket to become available
-function maybe_bounce(req, res, sock, head) {
+function DoBounce(req, res, sock) {
+    req.on('error', (err) => {
+        console.error('request', err);
+    });
+
+    if (res) {
+        res.on('error', (err) => {
+            console.error('response', err);
+        });
+    }
+
+    if (sock) {
+        sock.on('error', (err) => {
+            console.error('response', err);
+        });
+    }
+
     // without a hostname, we won't know who the request is for
     const hostname = req.headers.host;
     if (!hostname) {
@@ -168,10 +184,9 @@ function maybe_bounce(req, res, sock, head) {
 }
 
 // create a new tunnel with `id`
-function new_client(id, opt, cb) {
-
+// if the id is already used, a random id is assigned
+const NewClient = async (id, opt) => {
     // can't ask for id already is use
-    // TODO check this new id again
     if (clients[id]) {
         id = rand_id();
     }
@@ -192,17 +207,21 @@ function new_client(id, opt, cb) {
         delete clients[id];
     });
 
-    client.start((err, info) => {
-        if (err) {
-            delete clients[id];
-            cb(err);
-            return;
-        }
+    return new Promise((resolve, reject) => {
+        // each local client has a tcp server to link with the remove localtunnel client
+        // this starts the server and waits until it is listening
+        client.start((err, info) => {
+            if (err) {
+                // clear the reserved client id
+                delete clients[id];
+                reject(err);
+                return;
+            }
 
-        ++stats.tunnels;
-
-        info.id = id;
-        cb(err, info);
+            ++stats.tunnels;
+            info.id = id;
+            resolve(info);
+        });
     });
 }
 
@@ -211,98 +230,95 @@ module.exports = function(opt) {
 
     const schema = opt.secure ? 'https' : 'http';
 
-    const app = express();
+    const app = new Koa();
 
-    app.get('/', function(req, res, next) {
-        if (req.query['new'] === undefined) {
-            return next();
+    // api status endpoint
+    app.use(async (ctx, next) => {
+        const path = ctx.request.path;
+        if (path !== '/api/status') {
+            await next();
+            return;
         }
 
-        const req_id = rand_id();
-        debug('making new client with id %s', req_id);
-        new_client(req_id, opt, function(err, info) {
-            if (err) {
-                res.statusCode = 500;
-                return res.end(err.message);
-            }
-
-            const url = schema + '://' + req_id + '.' + req.headers.host;
-            info.url = url;
-            res.json(info);
-        });
-    });
-
-    app.get('/', function(req, res, next) {
-        res.redirect('https://localtunnel.github.io/www/');
-    });
-
-    app.get('/api/status', function(req, res, next) {
-        res.json({
+        ctx.body = {
             tunnels: stats.tunnels,
             mem: process.memoryUsage(),
-        });
+        };
     });
 
-    app.get('/:req_id', function(req, res, next) {
-        const req_id = req.params.req_id;
+    // root endpoint
+    app.use(async (ctx, next) => {
+        const path = ctx.request.path;
+
+        // skip anything not on the root path
+        if (path !== '/') {
+            await next();
+            return;
+        }
+
+        const isNewClientRequest = ctx.query['new'] !== undefined;
+        if (isNewClientRequest) {
+            const req_id = rand_id();
+            debug('making new client with id %s', req_id);
+            const info = await NewClient(req_id, opt);
+
+            const url = schema + '://' + info.id + '.' + ctx.request.host;
+            info.url = url;
+            ctx.body = info;
+            return;
+        }
+
+        // no new client request, send to landing page
+        ctx.redirect('https://localtunnel.github.io/www/');
+    });
+
+    // anything after the / path is a request for a specific client name
+    // This is a backwards compat feature
+    app.use(async (ctx, next) => {
+        const parts = ctx.request.path.split('/');
+
+        // any request with several layers of paths is not allowed
+        // rejects /foo/bar
+        // allow /foo
+        if (parts.length !== 2) {
+            await next();
+            return;
+        }
+
+        const req_id = parts[1];
 
         // limit requested hostnames to 63 characters
         if (! /^[a-z0-9]{4,63}$/.test(req_id)) {
-            const err = new Error('Invalid subdomain. Subdomains must be lowercase and between 4 and 63 alphanumeric characters.');
-            err.statusCode = 403;
-            return next(err);
+            const msg = 'Invalid subdomain. Subdomains must be lowercase and between 4 and 63 alphanumeric characters.';
+            ctx.status = 403;
+            ctx.body = {
+                message: msg,
+            };
+            return;
         }
 
         debug('making new client with id %s', req_id);
-        new_client(req_id, opt, function(err, info) {
-            if (err) {
-                return next(err);
-            }
+        const info = await NewClient(req_id, opt);
 
-            const url = schema + '://' + info.id + '.' + req.headers.host;
-            info.url = url;
-            res.json(info);
-        });
-
-    });
-
-    app.use(function(err, req, res, next) {
-        const status = err.statusCode || err.status || 500;
-        res.status(status).json({
-            message: err.message
-        });
+        const url = schema + '://' + info.id + '.' + ctx.request.host;
+        info.url = url;
+        ctx.body = info;
+        return;
     });
 
     const server = http.createServer();
 
-    server.on('request', function(req, res) {
-
-        req.on('error', (err) => {
-            console.error('request', err);
-        });
-
-        res.on('error', (err) => {
-            console.error('response', err);
-        });
-
-        debug('request %s', req.url);
-        if (maybe_bounce(req, res, null, null)) {
+    const appCallback = app.callback();
+    server.on('request', (req, res) => {
+        if (DoBounce(req, res, null)) {
             return;
-        };
+        }
 
-        app(req, res);
+        appCallback(req, res);
     });
 
-    server.on('upgrade', function(req, socket, head) {
-        req.on('error', (err) => {
-            console.error('ws req', err);
-        });
-
-        socket.on('error', (err) => {
-            console.error('ws socket', err);
-        });
-
-        if (maybe_bounce(req, null, socket, head)) {
+    server.on('upgrade', (req, socket, head) => {
+        if (DoBounce(req, null, socket)) {
             return;
         };
 
