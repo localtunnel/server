@@ -1,6 +1,6 @@
 import net from 'net';
 import EventEmitter from 'events';
-import log from 'bookrc';
+import log from 'book';
 import Debug from 'debug';
 
 const debug = Debug('localtunnel:server');

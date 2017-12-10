@@ -1,4 +1,4 @@
-import log from 'bookrc';
+import log from 'book';
 import express from 'express';
 import tldjs from 'tldjs';
 import on_finished from 'on-finished';
