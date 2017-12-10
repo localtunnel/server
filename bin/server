@@ -3,7 +3,7 @@
 require('localenv');
 require('babel-register');
 
-const log = require('bookrc');
+const log = require('book');
 const debug = require('debug')('localtunnel');
 const optimist = require('optimist');
 
