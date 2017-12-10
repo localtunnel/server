@@ -166,10 +166,7 @@ Proxy.prototype.next_socket = function(handler) {
 
     self.debug('processing request');
     handler(sock)
-    .catch((err) => {
-        log.error(err);
-    })
-    .finally(() => {
+    .then(() => {
         if (!sock.destroyed) {
             self.debug('retuning socket');
             self.sockets.push(sock);
@@ -181,7 +178,22 @@ Proxy.prototype.next_socket = function(handler) {
         }
 
         self._process_waiting();
-    });
+    })
+    .catch((err) => {
+        log.error(err);
+
+        if (!sock.destroyed) {
+            self.debug('retuning socket');
+            self.sockets.push(sock);
+        }
+
+        // no sockets left to process waiting requests
+        if (self.sockets.length === 0) {
+            return;
+        }
+
+        self._process_waiting();
+    })
 };
 
 Proxy.prototype._done = function() {

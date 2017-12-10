@@ -100,33 +100,6 @@ babel-generator@^6.26.0:
     source-map "^0.5.6"
     trim-right "^1.0.1"
 
-babel-helper-function-name@^6.24.1:
-  version "6.24.1"
-  resolved "https://registry.yarnpkg.com/babel-helper-function-name/-/babel-helper-function-name-6.24.1.tgz#d3475b8c03ed98242a25b48351ab18399d3580a9"
-  dependencies:
-    babel-helper-get-function-arity "^6.24.1"
-    babel-runtime "^6.22.0"
-    babel-template "^6.24.1"
-    babel-traverse "^6.24.1"
-    babel-types "^6.24.1"
-
-babel-helper-get-function-arity@^6.24.1:
-  version "6.24.1"
-  resolved "https://registry.yarnpkg.com/babel-helper-get-function-arity/-/babel-helper-get-function-arity-6.24.1.tgz#8f7782aa93407c41d3aa50908f89b031b1b6853d"
-  dependencies:
-    babel-runtime "^6.22.0"
-    babel-types "^6.24.1"
-
-babel-helper-remap-async-to-generator@^6.8.0:
-  version "6.24.1"
-  resolved "https://registry.yarnpkg.com/babel-helper-remap-async-to-generator/-/babel-helper-remap-async-to-generator-6.24.1.tgz#5ec581827ad723fecdd381f1c928390676e4551b"
-  dependencies:
-    babel-helper-function-name "^6.24.1"
-    babel-runtime "^6.22.0"
-    babel-template "^6.24.1"
-    babel-traverse "^6.24.1"
-    babel-types "^6.24.1"
-
 babel-helpers@^6.24.1:
   version "6.24.1"
   resolved "https://registry.yarnpkg.com/babel-helpers/-/babel-helpers-6.24.1.tgz#3471de9caec388e5c850e597e58a26ddf37602b2"
@@ -139,18 +112,6 @@ babel-messages@^6.23.0:
   resolved "https://registry.yarnpkg.com/babel-messages/-/babel-messages-6.23.0.tgz#f3cdf4703858035b2a2951c6ec5edf6c62f2630e"
   dependencies:
     babel-runtime "^6.22.0"
-
-babel-plugin-syntax-async-functions@^6.8.0:
-  version "6.13.0"
-  resolved "https://registry.yarnpkg.com/babel-plugin-syntax-async-functions/-/babel-plugin-syntax-async-functions-6.13.0.tgz#cad9cad1191b5ad634bf30ae0872391e0647be95"
-
-babel-plugin-transform-async-to-generator@6.8.0:
-  version "6.8.0"
-  resolved "https://registry.yarnpkg.com/babel-plugin-transform-async-to-generator/-/babel-plugin-transform-async-to-generator-6.8.0.tgz#fbb154f2912e00b9f0972131d7e03ebbe45684c2"
-  dependencies:
-    babel-helper-remap-async-to-generator "^6.8.0"
-    babel-plugin-syntax-async-functions "^6.8.0"
-    babel-runtime "^6.0.0"
 
 babel-plugin-transform-es2015-modules-commonjs@6.10.3:
   version "6.10.3"
@@ -218,7 +179,7 @@ babel-template@^6.24.1, babel-template@^6.26.0, babel-template@^6.8.0:
     babylon "^6.18.0"
     lodash "^4.17.4"
 
-babel-traverse@^6.24.1, babel-traverse@^6.26.0:
+babel-traverse@^6.26.0:
   version "6.26.0"
   resolved "https://registry.yarnpkg.com/babel-traverse/-/babel-traverse-6.26.0.tgz#46a9cbd7edcc62c8e5c064e2d2d8d0f4035766ee"
   dependencies:
