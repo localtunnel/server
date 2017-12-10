@@ -54,6 +54,23 @@ function maybe_bounce(req, res, sock, head) {
 
     const client = clients[subdomain];
 
+    if(!client || subdomain.indexOf('.') !== -1) {
+
+        subdomain = subdomain.split('.');
+
+        for(var i = 0; i <= subdomain.length; i++) {
+
+            client_id = subdomain.slice(0, i).join('.');
+            client = clients[client_id];
+
+            if(client) {
+                break;
+            }
+
+        }
+
+    }
+
     // no such subdomain
     // we use 502 error to the client to signify we can't service the request
     if (!client) {
@@ -185,7 +202,6 @@ function maybe_bounce(req, res, sock, head) {
 
 // create a new tunnel with `id`
 function new_client(id, opt, cb) {
-
     // can't ask for id already is use
     // TODO check this new id again
     if (clients[id]) {
@@ -224,9 +240,7 @@ function new_client(id, opt, cb) {
 
 module.exports = function(opt) {
     opt = opt || {};
-
     const schema = opt.secure ? 'https' : 'http';
-
     const app = express();
 
     app.get('/', function(req, res, next) {
@@ -273,7 +287,7 @@ module.exports = function(opt) {
         const req_id = req.params.req_id;
 
         // limit requested hostnames to 63 characters
-        if (! /^[a-z0-9]{4,63}$/.test(req_id)) {
+        if (! /^[a-z0-9\.]{4,63}$/.test(req_id)) {
             const err = new Error('Invalid subdomain. Subdomains must be lowercase and between 4 and 63 alphanumeric characters.');
             err.statusCode = 403;
             return next(err);
@@ -312,7 +326,8 @@ module.exports = function(opt) {
         });
 
         debug('request %s', req.url);
-        if (maybe_bounce(req, res, null, null)) {
+        var configuredHost = opt.host;
+        if (configuredHost !== req.headers.host && maybe_bounce(req, res, null, null)) {
             return;
         };
 
