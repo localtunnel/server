@@ -285,7 +285,7 @@ module.exports = function(opt) {
                 return next(err);
             }
 
-            const url = schema + '://' + req_id + '.' + req.headers.host;
+            const url = schema + '://' + info.id + '.' + req.headers.host;
             info.url = url;
             res.json(info);
         });
