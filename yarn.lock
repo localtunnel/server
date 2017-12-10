@@ -129,14 +129,6 @@ babel-plugin-transform-strict-mode@^6.8.0:
     babel-runtime "^6.22.0"
     babel-types "^6.24.1"
 
-babel-polyfill@6.9.1:
-  version "6.9.1"
-  resolved "https://registry.yarnpkg.com/babel-polyfill/-/babel-polyfill-6.9.1.tgz#6b6f2f63700c4979bbe2eeb8bdebbac6ddff75bc"
-  dependencies:
-    babel-runtime "^6.9.1"
-    core-js "^2.4.0"
-    regenerator-runtime "^0.9.5"
-
 babel-register@6.9.0:
   version "6.9.0"
   resolved "https://registry.yarnpkg.com/babel-register/-/babel-register-6.9.0.tgz#dd5f3572ef5bd4082ca05471e942e4a91b162ff0"
@@ -162,7 +154,7 @@ babel-register@^6.26.0:
     mkdirp "^0.5.1"
     source-map-support "^0.4.15"
 
-babel-runtime@^6.0.0, babel-runtime@^6.22.0, babel-runtime@^6.26.0, babel-runtime@^6.9.0, babel-runtime@^6.9.1:
+babel-runtime@^6.0.0, babel-runtime@^6.22.0, babel-runtime@^6.26.0, babel-runtime@^6.9.0:
   version "6.26.0"
   resolved "https://registry.yarnpkg.com/babel-runtime/-/babel-runtime-6.26.0.tgz#965c7058668e82b55d7bfe04ff2337bc8b5647fe"
   dependencies:
@@ -1337,10 +1329,6 @@ redeyed@~1.0.0:
 regenerator-runtime@^0.11.0:
   version "0.11.1"
   resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.11.1.tgz#be05ad7f9bf7d22e056f9726cee5017fbf19e2e9"
-
-regenerator-runtime@^0.9.5:
-  version "0.9.6"
-  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.9.6.tgz#d33eb95d0d2001a4be39659707c51b0cb71ce029"
 
 repeating@^2.0.0:
   version "2.0.1"
