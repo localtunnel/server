@@ -6,7 +6,7 @@ import Debug from 'debug';
 import http from 'http';
 import Promise from 'bluebird';
 
-import Proxy from './proxy';
+import Proxy from './lib/Proxy';
 import rand_id from './lib/rand_id';
 import BindingAgent from './lib/BindingAgent';
 
