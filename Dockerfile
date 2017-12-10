@@ -1,14 +1,13 @@
-FROM mhart/alpine-node:6.3.0
+FROM node:9.2.1-alpine
 
-RUN mkdir -p /app
 WORKDIR /app
 
-ADD package.json /app/
+COPY package.json /app/
+COPY yarn.lock /app/
 
-RUN npm install --production && \
-    rm -rf /tmp/* /root/.npm /root/.node-gyp
+RUN yarn install --production && yarn cache clean
 
-ADD . /app
+COPY . /app
 
 ENV NODE_ENV production
 ENTRYPOINT ["bin/server"]
