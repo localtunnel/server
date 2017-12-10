@@ -27,12 +27,14 @@
     "tldjs": "1.6.2"
   },
   "devDependencies": {
-    "mocha": "2.5.3",
     "localtunnel": "1.8.0",
+    "mocha": "2.5.3",
+    "node-dev": "3.1.3",
     "ws": "0.8.0"
   },
   "scripts": {
     "test": "mocha --ui qunit --reporter spec",
-    "start": "./bin/server"
+    "start": "./bin/server",
+    "dev": "node-dev bin/server --port 3000"
   }
 }
