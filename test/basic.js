@@ -5,9 +5,17 @@ var localtunnel = require('localtunnel');
 
 var localtunnel_server = require('../server')();
 
+process.on('uncaughtException', (err) => {
+    console.error(err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error(reason);
+});
+
 suite('basic');
 
-var lt_server_port
+var lt_server_port;
 
 before('set up localtunnel server', function(done) {
     var server = localtunnel_server.listen(function() {

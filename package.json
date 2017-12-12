@@ -18,6 +18,7 @@
     "localenv": "0.2.2",
     "on-finished": "2.3.0",
     "optimist": "0.6.1",
+    "pump": "2.0.0",
     "tldjs": "1.6.2"
   },
   "devDependencies": {
