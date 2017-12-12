@@ -47,7 +47,6 @@ process.on('SIGTERM', () => {
 
 process.on('uncaughtException', (err) => {
     log.error(err);
-    process.exit(1);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
