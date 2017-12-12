@@ -31,7 +31,7 @@ module.exports = function(opt) {
             return;
         }
 
-        const stats = manager.stats();
+        const stats = manager.stats;
 
         ctx.body = {
             tunnels: stats.tunnels,
