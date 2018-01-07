@@ -1,6 +1,5 @@
 import log from 'book';
 import Koa from 'koa';
-import tldjs from 'tldjs';
 import Debug from 'debug';
 import http from 'http';
 import Promise from 'bluebird';
@@ -10,10 +9,6 @@ import rand_id from './lib/rand_id';
 
 const debug = Debug('localtunnel:server');
 
-function GetClientIdFromHostname(hostname) {
-    return tldjs.getSubdomain(hostname);
-}
-
 module.exports = function(opt) {
     opt = opt || {};
 
@@ -22,6 +17,10 @@ module.exports = function(opt) {
     const schema = opt.secure ? 'https' : 'http';
 
     const app = new Koa();
+
+    const GetClientIdFromHostname = (hostname) => {
+        return hostname.replace(/:\d+/, '').replace(opt.hostname, '').split('.')[0];
+    };
 
     // api status endpoint
     app.use(async (ctx, next) => {
