@@ -18,9 +18,9 @@ module.exports = function(opt) {
 
     const app = new Koa();
 
-    const GetClientIdFromHostname = (hostname) => {
-        return hostname.replace(/:\d+/, '').replace(opt.hostname, '').split('.')[0];
-    };
+    const GetClientIdFromHostname = (hostname) => 
+    ((sections) => sections.length > 2 ? sections[0] : false)
+    (hostname.replace(/:\d+/, '').replace(opt.hostname, '').split('.'));
 
     // api status endpoint
     app.use(async (ctx, next) => {
