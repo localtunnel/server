@@ -18,9 +18,19 @@ module.exports = function(opt) {
 
     const app = new Koa();
 
-    const GetClientIdFromHostname = (hostname) => 
-    ((sections) => sections.length > 2 ? sections[0] : false)
-    (hostname.replace(/:\d+/, '').replace(opt.hostname, '').split('.'));
+    const GetClientIdFromHostname = (hostname) => {
+        hostname = hostname.replace(/:\d+$/, '');
+        if (opt.hostname) {
+            return hostname.replace(opt.hostname, '').replace(/.$/, '');
+        }
+        if ((/localhost(\.tld)$/).test(hostname)) {
+            return hostname.replace(/\.?localhost(\.tld)?/, '');
+        }
+        if (hostname.split('.').length > 2) {
+            return hostname.split('.')[0]
+        }
+        return false;
+    };
 
     // api status endpoint
     app.use(async (ctx, next) => {
@@ -107,6 +117,12 @@ module.exports = function(opt) {
         if (!hostname) {
             res.statusCode = 400;
             res.end('Host header is required');
+            return;
+        }
+
+        if (opt.hostname && !hostname.includes(opt.hostname)) {
+            res.statusCode = 502;
+            res.end('Bad Gateway');
             return;
         }
 
