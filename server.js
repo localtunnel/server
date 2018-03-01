@@ -12,25 +12,23 @@ const debug = Debug('localtunnel:server');
 
 function GetClientIdFromHostname(hostname,opt) {
     let subdomain = tldjs.getSubdomain(hostname);
-    console.log(opt,'option');
-    console.log(hostname,'hostname');
-    console.log(subdomain,'subdomain');
-    if (subdomain && opt.subHost) {        
+    if (subdomain && opt.subHost) {
+                const _subdomain = subdomain.replace(/\./g,'');        
                 const subHosts = Array.isArray(opt.subHost)
                     ? opt.subHost : [opt.subHost]        
-                const subHost = subHosts.reduce((found, sub) => {                        
-                    return found
-                        || (subdomain.slice(-sub.length) == sub ? sub : '')
-                }, '')
-                subdomain = subHost
-                    ? subdomain.slice(0, -(subHost.length + 1))
+                const subHost = subHosts.reduce((found, sub) => {
+                    sub = sub.replace(/\./g,'');
+                    return found + (_subdomain.includes(sub) ? sub : '');
+                },'')
+                subdomain = subHost.length > 0
+                    ? _subdomain.slice(0, -(subHost.length))
                     : subdomain
             }
     return subdomain;
 }
 
 module.exports = function(opt) {
-    console.log(opt);
+
     opt = opt || {};
 
     const manager = new ClientManager(opt);
@@ -124,9 +122,9 @@ module.exports = function(opt) {
             res.end('Host header is required');
             return;
         }
-
+        
         const clientId = GetClientIdFromHostname(hostname,opt);
-        console.log(clientId,'clientId response');
+
         if (!clientId) {
             appCallback(req, res);
             return;
@@ -144,13 +142,13 @@ module.exports = function(opt) {
     server.on('upgrade', (req, socket, head) => {
         const hostname = req.headers.host;
         if (!hostname) {
-            sock.destroy();
+            socket.destroy();
             return;
         }
 
         const clientId = GetClientIdFromHostname(hostname,opt);
         if (!clientId) {
-            sock.destroy();
+            socket.destroy();
             return;
         }
 
