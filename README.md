@@ -29,6 +29,21 @@ bin/server --port 1234
 
 The localtunnel server is now running and waiting for client requests on port 1234. You will most likely want to set up a reverse proxy to listen on port 80 (or start localtunnel on port 80 directly).
 
+**Note** that to use sub-hosts you should pass `--sub-host` option during set up. Pass this argument for every sub-host level.
+
+```shell
+# server set to run on port 1234 w/ a sub host to allow for this URL to work "http://sub.example.com"
+bin/server --port 1234 \
+--sub-host sub
+```
+
+```shell
+# server set to run on port 1234 w/ a sub host to allow for this URL to work "http://nested.sub.example.com"
+bin/server --port 1234 \
+--sub-host nested \
+--sub-host sub
+```
+
 ## use your server
 
 You can now use your domain with the `--host` flag for the `lt` client.
@@ -41,7 +56,6 @@ You will be assigned a URL similar to `qdci.sub.example.com:1234`.
 
 If your server is acting as a reverse proxy (i.e. nginx) and is able to listen on port 80, then you do not need the `:1234` part of the hostname for the `lt` client.
 
-Note that to use sub-hosts you should pass `--sub-host` option to server
 
 ## Deploy
 

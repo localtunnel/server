@@ -17,7 +17,6 @@ function GetClientIdFromHostname(hostname,opt) {
                 const subHosts = Array.isArray(opt.subHost)
                     ? opt.subHost : [opt.subHost]        
                 const subHost = subHosts.reduce((found, sub) => {
-                    sub = sub.replace(/\./g,'');
                     return found + (_subdomain.includes(sub) ? sub : '');
                 },'')
                 subdomain = subHost.length > 0
