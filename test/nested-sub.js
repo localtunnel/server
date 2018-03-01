@@ -10,7 +10,7 @@ var localtunnel_server = require('../server')({
 
 var lt_server_port
 
-suite('simple');
+suite('nested-sub');
 
 test('set up localtunnel server', function(done) {
     var server = localtunnel_server.listen(function() {
@@ -29,40 +29,38 @@ test('set up local http server', function(done) {
         done();
     });
 });
-
-test('set up localtunnel client', function(done) {
+test('set up localtunnel client (sub-host)', function (done) {
     var opt = {
-        host: 'http://localhost:' + lt_server_port,
-        subdomain: 'txyz'
+        host: 'http://nested.sub.host:' + lt_server_port,
+        subdomain: 'txy-z'
     };
 
-    localtunnel(test._fake_port, opt, function(err, tunnel) {
+    localtunnel(test._fake_port, opt, function (err, tunnel) {
         assert.ifError(err);
         var url = tunnel.url;
-        assert.ok(new RegExp('^http:\/\/.*localhost:' + lt_server_port + '$').test(url));
-        test._fake_url = url;
+        assert.ok(new RegExp('^http:\/\/.*nested.sub.host:' + lt_server_port + '$').test(url));
+        test._fake_url = url;        
         done(err);
     });
 });
 
-test('should respond to request', function(done) {
+test('should respond to request (sub-host)', function (done) {
     var hostname = url.parse(test._fake_url).hostname;
     var opt = {
-        host: 'localhost',
+        host: 'nested.sub.host',
         port: lt_server_port,
         headers: {
             host: hostname + '.tld'
         }
     };
-
-    http.get(opt, function(res) {
+    http.get(opt, function (res) {
         var body = '';
         res.setEncoding('utf-8');
-        res.on('data', function(chunk) {
+        res.on('data', function (chunk) {
             body += chunk;
         });
 
-        res.on('end', function() {
+        res.on('end', function () {
             assert.equal(body, 'hello world!');
             done();
         });

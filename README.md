@@ -1,6 +1,6 @@
 # localtunnel-server
 
-[![Build Status](https://travis-ci.org/localtunnel/server.svg?branch=master)](https://travis-ci.org/localtunnel/server)
+[![Build Status](https://travis-ci.org/gojisystems/gojiconnect-server.svg?branch=master)](https://travis-ci.org/gojisystems/gojiconnect-server)
 
 localtunnel exposes your localhost to the world for easy testing and sharing! No need to mess with DNS or deploy just to have others test out your changes.
 
@@ -30,6 +30,7 @@ bin/server --port 1234
 The localtunnel server is now running and waiting for client requests on port 1234. You will most likely want to set up a reverse proxy to listen on port 80 (or start localtunnel on port 80 directly).
 
 **Note** that to use sub-hosts you should pass `--sub-host` option during set up. Pass this argument for every sub-host level.
+Alternatively, `--sub-host` may be passed in as a single argument with the all sub hosts in a string `"nested.sub"`
 
 ```shell
 # server set to run on port 1234 w/ a sub host to allow for this URL to work "http://sub.example.com"
@@ -42,6 +43,12 @@ bin/server --port 1234 \
 bin/server --port 1234 \
 --sub-host nested \
 --sub-host sub
+```
+**Alternative**
+```shell
+# server set to run on port 1234 w/ a sub host to allow for this URL to work "http://nested.sub.example.com"
+bin/server --port 1234 \
+--sub-host "nested.sub"
 ```
 
 ## use your server
