@@ -71,7 +71,7 @@ test('should respond to request', function(done) {
 test('set up localtunnel client (sub-host)', function (done) {
     var opt = {
         host: 'http://nested.sub.localhost:' + lt_server_port,
-        subdomain: 'txyz'
+        subdomain: 'txy-z'
     };
 
     localtunnel(test._fake_port, opt, function (err, tunnel) {
