@@ -75,13 +75,13 @@ test('websocket server request', function(done) {
 });
 test('set up localtunnel client (sub host)', function (done) {
     var opt = {
-        host: 'http://sub.localhost:' + lt_server_port        
+        host: 'http://sub.host:' + lt_server_port        
     };
 
     localtunnel(test._fake_port, opt, function (err, tunnel) {
         assert.ifError(err);
         var url = tunnel.url;
-        assert.ok(new RegExp('^http:\/\/.*sub.localhost:' + lt_server_port + '$').test(url));
+        assert.ok(new RegExp('^http:\/\/.*sub.host:' + lt_server_port + '$').test(url));
         test._fake_url = url;
         done(err);
     });
@@ -89,7 +89,7 @@ test('set up localtunnel client (sub host)', function (done) {
 
 test('websocket server request (sub-host)', function (done) {
     var hostname = url.parse(test._fake_url).hostname;
-    var ws = new WebSocket('http://sub.localhost:' + lt_server_port, {
+    var ws = new WebSocket('http://sub.host:' + lt_server_port, {
         headers: {
             host: hostname + '.tld'
         }

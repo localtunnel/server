@@ -12,17 +12,20 @@ const debug = Debug('localtunnel:server');
 
 function GetClientIdFromHostname(hostname,opt) {
     let subdomain = tldjs.getSubdomain(hostname);
+    
     if (subdomain && opt.subHost) {
                 const _subdomain = subdomain.replace(/\./g,'');        
                 const subHosts = Array.isArray(opt.subHost)
                     ? opt.subHost : [opt.subHost]        
                 const subHost = subHosts.reduce((found, sub) => {
-                    return found + (_subdomain.includes(sub) ? sub : '');
+                    sub = sub.replace(/\./g,'');
+                    return found + (_subdomain.includes(sub) ? sub : sub.includes(_subdomain) ? sub : '');
                 },'')
                 subdomain = subHost.length > 0
                     ? _subdomain.slice(0, -(subHost.length))
                     : subdomain
             }
+            
     return subdomain;
 }
 
