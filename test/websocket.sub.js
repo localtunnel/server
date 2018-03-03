@@ -12,7 +12,7 @@ var localtunnel_server = require('../server')({
 
 var lt_server_port
 
-suite('websocket');
+suite('websocket.sub');
 
 before('set up localtunnel server', function(done) {
     var server = localtunnel_server.listen(function() {
@@ -41,30 +41,29 @@ before('set up local websocket server', function(done) {
         });
     });
 });
-
-before('set up localtunnel client', function(done) {
+test('set up localtunnel client (sub host)', function (done) {
     var opt = {
-        host: 'http://localhost:' + lt_server_port,
+        host: 'http://sub.host:' + lt_server_port        
     };
 
-    localtunnel(test._fake_port, opt, function(err, tunnel) {
+    localtunnel(test._fake_port, opt, function (err, tunnel) {
         assert.ifError(err);
         var url = tunnel.url;
-        assert.ok(new RegExp('^http:\/\/.*localhost:' + lt_server_port + '$').test(url));
+        assert.ok(new RegExp('^http:\/\/.*sub.host:' + lt_server_port + '$').test(url));
         test._fake_url = url;
         done(err);
     });
 });
 
-test('websocket server request', function(done) {
+test('websocket server request (sub-host)', function (done) {
     var hostname = url.parse(test._fake_url).hostname;
-    var ws = new WebSocket('http://localhost:' + lt_server_port, {
+    var ws = new WebSocket('http://sub.host:' + lt_server_port, {
         headers: {
             host: hostname + '.tld'
         }
     });
 
-    ws.on('message', function(msg) {
+    ws.on('message', function (msg) {
         assert.equal(msg, 'something');
         done();
     });

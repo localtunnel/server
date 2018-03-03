@@ -10,11 +10,27 @@ import rand_id from './lib/rand_id';
 
 const debug = Debug('localtunnel:server');
 
-function GetClientIdFromHostname(hostname) {
-    return tldjs.getSubdomain(hostname);
+function GetClientIdFromHostname(hostname,opt) {
+    let subdomain = tldjs.getSubdomain(hostname);
+    
+    if (subdomain && opt.subHost) {
+                const _subdomain = subdomain.replace(/\./g,'');        
+                const subHosts = Array.isArray(opt.subHost)
+                    ? opt.subHost : [opt.subHost]        
+                const subHost = subHosts.reduce((found, sub) => {
+                    sub = sub.replace(/\./g,'');
+                    return found + (_subdomain.includes(sub) ? sub : sub.includes(_subdomain) ? _subdomain : '');
+                },'')
+                subdomain = subHost.length > 0
+                    ? _subdomain.slice(0, -(subHost.length))
+                    : subdomain
+            }
+            
+    return subdomain;
 }
 
 module.exports = function(opt) {
+
     opt = opt || {};
 
     const manager = new ClientManager(opt);
@@ -42,7 +58,6 @@ module.exports = function(opt) {
     // root endpoint
     app.use(async (ctx, next) => {
         const path = ctx.request.path;
-
         // skip anything not on the root path
         if (path !== '/') {
             await next();
@@ -54,7 +69,6 @@ module.exports = function(opt) {
             const req_id = rand_id();
             debug('making new client with id %s', req_id);
             const info = await manager.newClient(req_id);
-
             const url = schema + '://' + info.id + '.' + ctx.request.host;
             info.url = url;
             ctx.body = info;
@@ -81,7 +95,7 @@ module.exports = function(opt) {
         const req_id = parts[1];
 
         // limit requested hostnames to 63 characters
-        if (! /^[a-z0-9]{4,63}$/.test(req_id)) {
+        if (! /^[a-z0-9-]{4,63}$/.test(req_id)) {
             const msg = 'Invalid subdomain. Subdomains must be lowercase and between 4 and 63 alphanumeric characters.';
             ctx.status = 403;
             ctx.body = {
@@ -110,8 +124,9 @@ module.exports = function(opt) {
             res.end('Host header is required');
             return;
         }
+        
+        const clientId = GetClientIdFromHostname(hostname,opt);
 
-        const clientId = GetClientIdFromHostname(hostname);
         if (!clientId) {
             appCallback(req, res);
             return;
@@ -129,13 +144,13 @@ module.exports = function(opt) {
     server.on('upgrade', (req, socket, head) => {
         const hostname = req.headers.host;
         if (!hostname) {
-            sock.destroy();
+            socket.destroy();
             return;
         }
 
-        const clientId = GetClientIdFromHostname(hostname);
+        const clientId = GetClientIdFromHostname(hostname,opt);
         if (!clientId) {
-            sock.destroy();
+            socket.destroy();
             return;
         }
 
