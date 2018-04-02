@@ -4,9 +4,9 @@ import tldjs from 'tldjs';
 import Debug from 'debug';
 import http from 'http';
 import Promise from 'bluebird';
+import { hri } from 'human-readable-ids';
 
 import ClientManager from './lib/ClientManager';
-import rand_id from './lib/rand_id';
 
 const debug = Debug('localtunnel:server');
 
@@ -51,7 +51,7 @@ module.exports = function(opt) {
 
         const isNewClientRequest = ctx.query['new'] !== undefined;
         if (isNewClientRequest) {
-            const req_id = rand_id();
+            const req_id = hri.random();
             debug('making new client with id %s', req_id);
             const info = await manager.newClient(req_id);
 
