@@ -118,6 +118,21 @@ test('request specific domain', function(done) {
     });
 });
 
+test('request domain with dash', function(done) {
+    var opt = {
+        host: 'http://localhost:' + lt_server_port,
+        subdomain: 'abcd-1234'
+    };
+
+    localtunnel(test._fake_port, opt, function(err, tunnel) {
+        assert.ifError(err);
+        var url = tunnel.url;
+        assert.ok(new RegExp('^http:\/\/.*localhost:' + lt_server_port + '$').test(url));
+        test._fake_url = url;
+        done(err);
+    });
+});
+
 test('request domain that is too long', function(done) {
     var opt = {
         host: 'http://localhost:' + lt_server_port,
