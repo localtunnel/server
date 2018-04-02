@@ -9,12 +9,15 @@ import ClientManager from './lib/ClientManager';
 
 const debug = Debug('localtunnel:server');
 
-function GetClientIdFromHostname(hostname) {
-    return tldjs.getSubdomain(hostname);
-}
-
 export default function(opt) {
     opt = opt || {};
+
+    const validHosts = (opt.domain) ? [opt.domain] : undefined;
+    const myTldjs = tldjs.fromUserSettings({ validHosts });
+
+    function GetClientIdFromHostname(hostname) {
+        return myTldjs.getSubdomain(hostname);
+    }
 
     const manager = new ClientManager(opt);
 

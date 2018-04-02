@@ -18,7 +18,7 @@
     "on-finished": "2.3.0",
     "optimist": "0.6.1",
     "pump": "2.0.0",
-    "tldjs": "1.6.2"
+    "tldjs": "2.3.1"
   },
   "devDependencies": {
     "localtunnel": "1.8.0",
