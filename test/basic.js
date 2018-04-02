@@ -1,9 +1,11 @@
-var http = require('http');
-var url = require('url');
-var assert = require('assert');
-var localtunnel = require('localtunnel');
+import http from 'http';
+import url from 'url';
+import assert from 'assert';
+import localtunnel from 'localtunnel';
 
-var localtunnel_server = require('../server')();
+import CreateServer from '../server';
+
+const localtunnel_server = CreateServer();
 
 process.on('uncaughtException', (err) => {
     console.error(err);

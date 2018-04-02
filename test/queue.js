@@ -1,11 +1,13 @@
-var http = require('http');
-var url = require('url');
-var assert = require('assert');
-var localtunnel = require('localtunnel');
+import http from 'http';
+import url from 'url';
+import assert from 'assert';
+import localtunnel from 'localtunnel';
+
+import CreateServer from '../server';
 
 suite('queue');
 
-var localtunnel_server = require('../server')({
+var localtunnel_server = CreateServer({
     max_tcp_sockets: 1
 });
 

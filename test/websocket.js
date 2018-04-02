@@ -1,11 +1,13 @@
-var http = require('http');
-var url = require('url');
-var assert = require('assert');
-var localtunnel = require('localtunnel');
-var WebSocket = require('ws');
-var WebSocketServer = require('ws').Server;
+import http from 'http';
+import url from 'url';
+import assert from 'assert';
+import localtunnel from 'localtunnel';
+import WebSocket from 'ws';
+import { Server as WebSocketServer } from 'ws';
 
-var localtunnel_server = require('../server')({
+import CreateServer from '../server';
+
+const localtunnel_server = CreateServer({
     max_tcp_sockets: 2
 });
 

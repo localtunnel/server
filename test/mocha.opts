@@ -1,4 +1,4 @@
 --check-leaks
 --reporter spec
 --ui qunit
---compilers js:babel-register
+--require esm

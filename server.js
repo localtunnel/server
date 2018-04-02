@@ -3,7 +3,6 @@ import Koa from 'koa';
 import tldjs from 'tldjs';
 import Debug from 'debug';
 import http from 'http';
-import Promise from 'bluebird';
 import { hri } from 'human-readable-ids';
 
 import ClientManager from './lib/ClientManager';
@@ -14,7 +13,7 @@ function GetClientIdFromHostname(hostname) {
     return tldjs.getSubdomain(hostname);
 }
 
-module.exports = function(opt) {
+export default function(opt) {
     opt = opt || {};
 
     const manager = new ClientManager(opt);

@@ -1,11 +1,14 @@
-#!/usr/bin/env node
+#!/usr/bin/env node -r esm
 
-require('localenv');
-require('babel-register');
+import 'localenv';
+import optimist from 'optimist';
 
-const log = require('book');
-const debug = require('debug')('localtunnel');
-const optimist = require('optimist');
+import log from 'book';
+import Debug from 'debug';
+
+import CreateServer from '../server';
+
+const debug = Debug('localtunnel');
 
 const argv = optimist
     .usage('Usage: $0 --port [num]')
@@ -32,7 +35,7 @@ if (argv.help) {
     process.exit();
 }
 
-const server = require('../server')({
+const server = CreateServer({
     max_tcp_sockets: argv['max-sockets'],
     secure: argv.secure
 });
