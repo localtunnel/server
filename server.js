@@ -1,6 +1,5 @@
 import log from 'book';
 import Koa from 'koa';
-import tldjs from 'tldjs';
 import Debug from 'debug';
 import http from 'http';
 import Promise from 'bluebird';
@@ -10,10 +9,6 @@ import rand_id from './lib/rand_id';
 
 const debug = Debug('localtunnel:server');
 
-function GetClientIdFromHostname(hostname) {
-    return tldjs.getSubdomain(hostname);
-}
-
 module.exports = function(opt) {
     opt = opt || {};
 
@@ -22,6 +17,20 @@ module.exports = function(opt) {
     const schema = opt.secure ? 'https' : 'http';
 
     const app = new Koa();
+
+    const GetClientIdFromHostname = (hostname) => {
+        hostname = hostname.replace(/:\d+$/, '');
+        if (opt.hostname) {
+            return hostname.replace(opt.hostname, '').replace(/.$/, '');
+        }
+        if ((/localhost(\.tld)$/).test(hostname)) {
+            return hostname.replace(/\.?localhost(\.tld)?/, '');
+        }
+        if (hostname.split('.').length > 2) {
+            return hostname.split('.')[0]
+        }
+        return false;
+    };
 
     // api status endpoint
     app.use(async (ctx, next) => {
@@ -108,6 +117,12 @@ module.exports = function(opt) {
         if (!hostname) {
             res.statusCode = 400;
             res.end('Host header is required');
+            return;
+        }
+
+        if (opt.hostname && !hostname.includes(opt.hostname)) {
+            res.statusCode = 502;
+            res.end('Bad Gateway');
             return;
         }
 
