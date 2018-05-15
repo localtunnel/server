@@ -43,6 +43,16 @@ You will be assigned a URL similar to `heavy-puma-9.sub.example.com:1234`.
 
 If your server is acting as a reverse proxy (i.e. nginx) and is able to listen on port 80, then you do not need the `:1234` part of the hostname for the `lt` client.
 
+## REST API
+
+### POST /api/tunnels
+
+Create a new tunnel. A LocalTunnel client posts to this enpoint to request a new tunnel with a specific name or a randomly assigned name.
+
+### GET /api/status
+
+General server information.
+
 ## Deploy
 
 You can deploy your own localtunnel server using the prebuilt docker image.

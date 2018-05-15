@@ -1,4 +1,0 @@
---check-leaks
---reporter spec
---ui qunit
---require esm

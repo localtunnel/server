@@ -14,6 +14,7 @@ export default function(opt) {
 
     const validHosts = (opt.domain) ? [opt.domain] : undefined;
     const myTldjs = tldjs.fromUserSettings({ validHosts });
+    const landingPage = opt.landing || 'https://localtunnel.github.io/www/';
 
     function GetClientIdFromHostname(hostname) {
         return myTldjs.getSubdomain(hostname);
@@ -53,9 +54,9 @@ export default function(opt) {
 
         const isNewClientRequest = ctx.query['new'] !== undefined;
         if (isNewClientRequest) {
-            const req_id = hri.random();
-            debug('making new client with id %s', req_id);
-            const info = await manager.newClient(req_id);
+            const reqId = hri.random();
+            debug('making new client with id %s', reqId);
+            const info = await manager.newClient(reqId);
 
             const url = schema + '://' + info.id + '.' + ctx.request.host;
             info.url = url;
@@ -64,7 +65,7 @@ export default function(opt) {
         }
 
         // no new client request, send to landing page
-        ctx.redirect('https://localtunnel.github.io/www/');
+        ctx.redirect(landingPage);
     });
 
     // anything after the / path is a request for a specific client name
@@ -80,10 +81,10 @@ export default function(opt) {
             return;
         }
 
-        const req_id = parts[1];
+        const reqId = parts[1];
 
         // limit requested hostnames to 63 characters
-        if (! /^(?:[a-z0-9][a-z0-9\-]{4,63}[a-z0-9]|[a-z0-9]{4,63})$/.test(req_id)) {
+        if (! /^(?:[a-z0-9][a-z0-9\-]{4,63}[a-z0-9]|[a-z0-9]{4,63})$/.test(reqId)) {
             const msg = 'Invalid subdomain. Subdomains must be lowercase and between 4 and 63 alphanumeric characters.';
             ctx.status = 403;
             ctx.body = {
@@ -92,8 +93,8 @@ export default function(opt) {
             return;
         }
 
-        debug('making new client with id %s', req_id);
-        const info = await manager.newClient(req_id);
+        debug('making new client with id %s', reqId);
+        const info = await manager.newClient(reqId);
 
         const url = schema + '://' + info.id + '.' + ctx.request.host;
         info.url = url;
@@ -104,6 +105,7 @@ export default function(opt) {
     const server = http.createServer();
 
     const appCallback = app.callback();
+
     server.on('request', (req, res) => {
         // without a hostname, we won't know who the request is for
         const hostname = req.headers.host;
@@ -119,13 +121,14 @@ export default function(opt) {
             return;
         }
 
-        if (manager.hasClient(clientId)) {
-            manager.handleRequest(clientId, req, res);
+        const client = manager.getClient(clientId);
+        if (!client) {
+            res.statusCode = 404;
+            res.end('404');
             return;
         }
 
-        res.statusCode = 404;
-        res.end('404');
+        client.handleRequest(req, res);
     });
 
     server.on('upgrade', (req, socket, head) => {
@@ -141,12 +144,13 @@ export default function(opt) {
             return;
         }
 
-        if (manager.hasClient(clientId)) {
-            manager.handleUpgrade(clientId, req, socket);
+        const client = manager.getClient(clientId);
+        if (!client) {
+            sock.destroy();
             return;
         }
 
-        socket.destroy();
+        client.handleUpgrade(req, socket);
     });
 
     return server;
