@@ -14,6 +14,7 @@
     "esm": "3.0.34",
     "human-readable-ids": "1.0.3",
     "koa": "2.5.1",
+    "koa-router": "7.4.0",
     "localenv": "0.2.2",
     "optimist": "0.6.1",
     "pump": "3.0.0",

@@ -82,4 +82,28 @@ describe('Server', () => {
         wss.close();
         await new Promise(resolve => server.close(resolve));
     });
+
+    it('should support the /api/tunnels/:id/status endpoint', async () => {
+        const server = createServer();
+        await new Promise(resolve => server.listen(resolve));
+
+        // no such tunnel yet
+        const res = await request(server).get('/api/tunnels/foobar-test/status');
+        assert.equal(res.statusCode, 404);
+
+        // request a new client called foobar-test
+        {
+            const res = await request(server).get('/foobar-test');
+        }
+
+        {
+            const res = await request(server).get('/api/tunnels/foobar-test/status');
+            assert.equal(res.statusCode, 200);
+            assert.deepEqual(res.body, {
+                connected_sockets: 0,
+            });
+        }
+
+        await new Promise(resolve => server.close(resolve));
+    });
 });
