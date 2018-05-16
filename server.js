@@ -146,7 +146,7 @@ export default function(opt) {
 
         const client = manager.getClient(clientId);
         if (!client) {
-            sock.destroy();
+            socket.destroy();
             return;
         }
 
