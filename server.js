@@ -64,10 +64,12 @@ export default function(opt) {
         }
 
         const isNewClientRequest = ctx.query['new'] !== undefined;
+        const isSecure = ctx.query['secure'] !== undefined;
+
         if (isNewClientRequest) {
             const reqId = hri.random();
             debug('making new client with id %s', reqId);
-            const info = await manager.newClient(reqId);
+            const info = await manager.newClient(reqId, isSecure);
 
             const url = schema + '://' + info.id + '.' + ctx.request.host;
             info.url = url;
@@ -105,7 +107,8 @@ export default function(opt) {
         }
 
         debug('making new client with id %s', reqId);
-        const info = await manager.newClient(reqId);
+        const isSecure = ctx.query['secure'] !== undefined;
+        const info = await manager.newClient(reqId, isSecure);
 
         const url = schema + '://' + info.id + '.' + ctx.request.host;
         info.url = url;
