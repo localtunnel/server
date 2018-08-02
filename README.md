@@ -43,11 +43,25 @@ You will be assigned a URL similar to `heavy-puma-9.sub.example.com:1234`.
 
 If your server is acting as a reverse proxy (i.e. nginx) and is able to listen on port 80, then you do not need the `:1234` part of the hostname for the `lt` client.
 
+### configuration
+
+The localtunnel server can also be configured with an _optional_, YAML-based configuration file (`localtunnel.yml`). When launched, the server will work its way up the file tree in search of this file (starting from the current working directory). An example is shown below.
+
+```
+port: 3000
+domain: server.com
+secure: true
+require_token: true
+tokens:
+  # John Doe
+  - VJtD3D6BXi9mZmqFT9ezAYq9fLjwUQ4WPZWUiaopRsy3HvMotRdhgbwiCuzrnhYv
+```
+
 ## REST API
 
 ### POST /api/tunnels
 
-Create a new tunnel. A LocalTunnel client posts to this enpoint to request a new tunnel with a specific name or a randomly assigned name.
+Create a new tunnel. A LocalTunnel client posts to this endpoint to request a new tunnel with a specific name or a randomly assigned name.
 
 ### GET /api/status
 
