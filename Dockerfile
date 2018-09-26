@@ -14,4 +14,4 @@ ENV NODE_ENV production
 ENTRYPOINT ["node", "-r", "esm", "./bin/server"]
 
 HEALTHCHECK --start-period=30s \
-  CMD curl -s localhost:$(netstat -nltWep | grep 1/node | awk '{ print $4 }'| cut -d ":" -f 2) || exit 1  
+  CMD curl -s localhost:$(netstat -nltWep | grep 1/node | awk '{ print $4 }'| cut -d ":" -f 2)/api/status || exit 1  
