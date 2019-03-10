@@ -145,13 +145,13 @@ export default function(opt) {
     server.on('upgrade', (req, socket, head) => {
         const hostname = req.headers.host;
         if (!hostname) {
-            sock.destroy();
+            socket.destroy();
             return;
         }
 
         const clientId = GetClientIdFromHostname(hostname);
         if (!clientId) {
-            sock.destroy();
+            socket.destroy();
             return;
         }
 
