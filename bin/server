@@ -11,7 +11,7 @@ import CreateServer from '../server';
 const debug = Debug('localtunnel');
 
 const argv = optimist
-    .usage('Usage: $0 --port [num]')
+    .usage('Usage: $0 [--port num] [--address address] [--domain domain] [--max-sockets 10] [--client-min-port-range 3000 --client-max-port-range 3500]')
     .options('secure', {
         default: false,
         describe: 'use this flag to indicate proxy over https'
@@ -31,6 +31,14 @@ const argv = optimist
         default: 10,
         describe: 'maximum number of tcp sockets each client is allowed to establish at one time (the tunnels)'
     })
+    .options('client-min-port-range', {
+        default: 1024,
+        describe: 'Port start range to use for localtunnel clients to connect to'
+    })
+    .options('client-max-port-range', {
+        default: 65535,
+        describe: 'Port end range to use for localtunnel clients to connect to'
+    })
     .argv;
 
 if (argv.help) {
@@ -42,6 +50,8 @@ const server = CreateServer({
     max_tcp_sockets: argv['max-sockets'],
     secure: argv.secure,
     domain: argv.domain,
+    client_min_port_range: argv['client-min-port-range'],
+    client_max_port_range: argv['client-max-port-range']
 });
 
 server.listen(argv.port, argv.address, () => {
