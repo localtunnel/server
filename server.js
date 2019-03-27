@@ -104,13 +104,21 @@ export default function(opt) {
             return;
         }
 
-        debug('making new client with id %s', reqId);
-        const info = await manager.newClient(reqId);
+        try {
+            debug('making new client with id %s', reqId);
+            const info = await manager.newClient(reqId);
 
-        const url = schema + '://' + info.id + '.' + ctx.request.host;
-        info.url = url;
-        ctx.body = info;
-        return;
+            const url = schema + '://' + info.id + '.' + ctx.request.host;
+            info.url = url;
+            ctx.body = info;
+        }
+        catch(err) {
+            debug('Error: %s with id %s', err.message, reqId);
+            ctx.status = 403;
+            ctx.body = {
+                message: err.message,
+            };
+        }
     });
 
     const server = http.createServer();
