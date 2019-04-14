@@ -68,3 +68,16 @@ docker run -d \
     --net host \
     defunctzombie/localtunnel-server:latest --port 3000
 ```
+
+or using `docker-compose.yml`
+
+```
+version: '3'
+services:
+  localtunnel:
+    image: "defunctzombie/localtunnel-server:latest"
+    container_name: "localtunnel"
+    network_mode: "host"
+    command: "--port 3000"
+    restart: "always"
+```
