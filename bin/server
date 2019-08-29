@@ -31,6 +31,10 @@ const argv = optimist
         default: 10,
         describe: 'maximum number of tcp sockets each client is allowed to establish at one time (the tunnels)'
     })
+    .options('landing', {
+        default: 'https://localtunnel.github.io/www/',
+        describe: 'The landing page for redirect from root domain'
+    })
     .argv;
 
 if (argv.help) {
@@ -42,6 +46,7 @@ const server = CreateServer({
     max_tcp_sockets: argv['max-sockets'],
     secure: argv.secure,
     domain: argv.domain,
+    landing: argv.landing,
 });
 
 server.listen(argv.port, argv.address, () => {
