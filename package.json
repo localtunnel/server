@@ -28,7 +28,9 @@
   },
   "scripts": {
     "test": "mocha --check-leaks --require esm './**/*.test.js'",
-    "start": "./bin/server",
-    "dev": "node-dev bin/server --port 3000"
+    "start": "node -r esm bin/server --port 1234 --max-sockets 30",
+    "start-docker": "docker run -d --restart always --name localtunnel --net host defunctzombie/localtunnel-server:latest --port 1234",
+    "dev": "node-dev bin/server --port 3000",
+    "stuff": "docker build --tag a8c-lt:1.0 . && docker run -d --restart always --name lt --net host a8c-lt:1.0 --port 1234"
   }
 }

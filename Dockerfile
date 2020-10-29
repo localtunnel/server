@@ -10,4 +10,5 @@ RUN yarn install --production && yarn cache clean
 COPY . /app
 
 ENV NODE_ENV production
-ENTRYPOINT ["node", "-r", "esm", "./bin/server"]
+ENV DEBUG *
+ENTRYPOINT ["node", "-r", "esm", "./bin/server", "--secure", "--max-sockets", "20"]
