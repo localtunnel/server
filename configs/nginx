@@ -32,8 +32,8 @@ server {
     proxy_busy_buffers_size    256k;
 
     # Ugly fix for Connection timed out error
-    proxy_send_timeout 150; 
-    proxy_read_timeout 150; 
+    proxy_send_timeout 300; 
+    proxy_read_timeout 300; 
 
   }
 }
