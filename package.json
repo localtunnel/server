@@ -16,9 +16,10 @@
     "koa": "2.5.1",
     "koa-router": "7.4.0",
     "localenv": "0.2.2",
-    "optimist": "0.6.1",
+    "portfinder": "1.0.28",
     "pump": "3.0.0",
-    "tldjs": "2.3.1"
+    "tldjs": "2.3.1",
+    "yargs": "16.2.0"
   },
   "devDependencies": {
     "mocha": "5.1.1",
@@ -28,7 +29,7 @@
   },
   "scripts": {
     "test": "mocha --check-leaks --require esm './**/*.test.js'",
-    "start": "./bin/server",
-    "dev": "node-dev bin/server --port 3000"
+    "start": "node -r esm ./bin/server --port 3000",
+    "dev": "node-dev -r esm bin/server --port 3000 --domain http://localhost:3000"
   }
 }
