@@ -134,6 +134,11 @@ export default function(opt) {
 
         const client = manager.getClient(clientId);
         if (!client) {
+            if (clientId === 'www') {
+                res.writeHead(301, {'Location' : landingPage});
+                res.end();
+                return;
+            }
             res.statusCode = 404;
             res.end('404');
             return;
