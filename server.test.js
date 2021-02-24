@@ -1,10 +1,13 @@
 import request from 'supertest';
 import assert from 'assert';
-import { Server as WebSocketServer } from 'ws';
+// import { Server as WebSocketServer } from 'ws';
 import WebSocket from 'ws';
 import net from 'net';
 
-import createServer from './server';
+import createServer from './server.js';
+
+const WebSocketServer  = WebSocket.Server;
+
 
 describe('Server', () => {
     it('server starts and stops', async () => {
