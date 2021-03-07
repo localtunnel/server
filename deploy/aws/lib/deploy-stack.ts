@@ -13,7 +13,8 @@ export class DeployStack extends cdk.Stack {
     super(scope, id, props);
     // create vpc with 3 subnets
     const vpc = new ec2.Vpc(this, "LocalTunnelVPC", {
-      maxAzs: 3
+      maxAzs: 3,
+      natGateways: 0
     })
     // create the ecs cluster
     const cluster = new ecs.Cluster(this, "LocalTunnelCluster", {
@@ -54,7 +55,8 @@ export class DeployStack extends cdk.Stack {
       recordType: ecs_patterns.ApplicationLoadBalancedServiceRecordType.ALIAS,
       listenerPort: 443,
       domainName: domainName,
-      domainZone: DNSZone
+      domainZone: DNSZone,
+      assignPublicIp: true
     })
     // set health route
     localtunnelsvc.targetGroup.configureHealthCheck({
