@@ -8,8 +8,9 @@ import * as ecs_patterns from "@aws-cdk/aws-ecs-patterns";
 // tls certificate with ACM
 import * as route53 from '@aws-cdk/aws-route53';
 import * as acm from '@aws-cdk/aws-certificatemanager';
+import { FargateTaskDefinition } from '@aws-cdk/aws-ecs';
 export class DeployStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, hostedZoneID: string, domainName: string, props?: cdk.StackProps) {
+  constructor(scope: cdk.Construct, id: string, hostedZoneID: string, zoneName: string, domainName: string, props?: cdk.StackProps) {
     super(scope, id, props);
     // create vpc with 3 subnets
     const vpc = new ec2.Vpc(this, "LocalTunnelVPC", {
@@ -38,16 +39,26 @@ export class DeployStack extends cdk.Stack {
     })
     
     
-
+    // task definition
+    let FgTask = new FargateTaskDefinition(this, "LocaltunnelDefinition", {
+      cpu: 256,
+      memoryLimitMiB: 512,
+    })
+    FgTask.addContainer("localtunnel", {
+      image: ecs.ContainerImage.fromRegistry("defunctzombie/localtunnel-server:latest"),
+      cpu: 128,
+      entryPoint: ["node", "-r", "esm", "./bin/server", "--domain", domainName],
+      
+    }).addPortMappings({
+      containerPort: 80
+    })
+    
     // create LBed Fargate service
     let localtunnelsvc = new ecs_patterns.ApplicationLoadBalancedFargateService(this, "LocalTunnelService", {
       cluster: cluster,
       cpu: 512,
       desiredCount: 1,
-      taskImageOptions: {
-        image: ecs.ContainerImage.fromRegistry("defunctzombie/localtunnel-server:latest")
-        
-      },
+      taskDefinition: FgTask,
       memoryLimitMiB: 2048,
       publicLoadBalancer: true,
       certificate: cert,

@@ -5,4 +5,4 @@ import { DeployStack } from '../lib/deploy-stack';
 
 let app = new cdk.App();
 // replace them with HostedZoneID in route53, the domain name for the localtunnel, and the hosted zone domain
-new DeployStack(app, 'DeployStack', process.env.LOCALTUNNEL_ROUTE53_ID as string , process.env.LOCALTUNNEL_BASE_DOMAIN as string);
+new DeployStack(app, 'DeployStack', process.env.LOCALTUNNEL_ROUTE53_ID as string , process.env.LOCALTUNNEL_BASE_DOMAIN as string, process.env.LOCALTUNNEL_DOMAIN as string);
