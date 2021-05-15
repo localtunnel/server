@@ -1,8 +1,9 @@
 import request from 'supertest';
 import assert from 'assert';
-import { Server as WebSocketServer } from 'ws';
-import WebSocket from 'ws';
+import WebSocket, {Server as WebSocketServer} from 'ws';
 import net from 'net';
+import jwt from 'jsonwebtoken';
+
 
 import createServer from './server';
 
@@ -32,6 +33,30 @@ describe('Server', () => {
         const server = createServer();
         const res = await request(server).get('/thisdomainisoutsidethesizeofwhatweallowwhichissixtythreecharacters');
         assert.equal(res.body.message, 'Invalid subdomain. Subdomains must be lowercase and between 4 and 63 alphanumeric characters.');
+    });
+
+    it('reject request without jwt if required', async () => {
+        const server = createServer({jwt_shared_secret: 'thekey'});
+        const res = await request(server).get('/subdomain');
+        assert.equal(res.status, 401);
+    });
+
+    it('reject request with invalid jwt if required', async () => {
+        const server = createServer({jwt_shared_secret: 'thekey'});
+        const jwtoken = jwt.sign({
+            foo: 'bar'
+        }, 'thebadkey');
+        const res = await request(server).get('/subdomain').set('Authorization', `Bearer ${jwtoken}`);
+        assert.equal(res.status, 401);
+    });
+
+    it('accept request with valid jwt if required', async () => {
+        const server = createServer({jwt_shared_secret: 'thekey'});
+        const jwtoken = jwt.sign({
+            foo: 'bar'
+        }, 'thekey');
+        const res = await request(server).get('/subdomain').set('Authorization', `Bearer ${jwtoken}`);
+        assert.equal(res.status, 200);
     });
 
     it('should upgrade websocket requests', async () => {

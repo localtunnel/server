@@ -14,6 +14,7 @@
     "esm": "3.0.34",
     "human-readable-ids": "1.0.3",
     "koa": "2.5.1",
+    "koa-jwt": "4.0.0",
     "koa-router": "7.4.0",
     "localenv": "0.2.2",
     "optimist": "0.6.1",
@@ -29,6 +30,6 @@
   "scripts": {
     "test": "mocha --check-leaks --require esm './**/*.test.js'",
     "start": "./bin/server",
-    "dev": "node-dev bin/server --port 3000"
+    "dev": "node-dev bin/server --require esm --port 3000"
   }
 }

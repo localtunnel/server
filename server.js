@@ -5,10 +5,17 @@ import Debug from 'debug';
 import http from 'http';
 import { hri } from 'human-readable-ids';
 import Router from 'koa-router';
+import jwt from'koa-jwt';
 
 import ClientManager from './lib/ClientManager';
 
 const debug = Debug('localtunnel:server');
+
+function addJwtMiddleware(app, opt) {
+    app.use(jwt({
+        secret: opt.jwt_shared_secret
+    }));
+}
 
 export default function(opt) {
     opt = opt || {};
@@ -27,6 +34,10 @@ export default function(opt) {
 
     const app = new Koa();
     const router = new Router();
+
+    if (opt.jwt_shared_secret){
+        addJwtMiddleware(app, opt);
+    }
 
     router.get('/api/status', async (ctx, next) => {
         const stats = manager.stats;
