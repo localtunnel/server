@@ -131,4 +131,53 @@ describe('Server', () => {
 
         await new Promise(resolve => server.close(resolve));
     });
+
+    it('should not support the /api/tunnels/:id/kill endpoint if jwt authorization is not enable on server', async () => {
+        const server = createServer();
+        await new Promise(resolve => server.listen(resolve));
+
+        const res = await request(server).get('/api/tunnels/foobar-test/kill');
+        assert.equal(res.statusCode, 403);
+        assert.equal(res.text, 'jwt_shared_secret is not used');
+
+        await new Promise(resolve => server.close(resolve));
+    });
+
+    it('should throw error when calling /api/tunnels/:id/kill endpoint if id does not exists', async () => {
+        const server = createServer({jwt_shared_secret: 'thekey'});
+        await new Promise(resolve => server.listen(resolve));
+
+        {
+          const jwtoken = jwt.sign({
+            name: 'bar'
+          }, 'thekey');
+          await request(server).get('/foobar-test').set('Authorization', `Bearer ${jwtoken}`);
+          // no such tunnel yet
+          const res = await request(server).get('/api/tunnels/foobar-test2/kill').set('Authorization', `Bearer ${jwtoken}`);
+          assert.equal(res.statusCode, 404);
+          assert.equal(res.text, 'client with id foobar-test2 is not connected');
+        }
+
+        await new Promise(resolve => server.close(resolve));
+    });
+
+    it('should disconnect client when calling /api/tunnels/:id/kill endpoint', async () => {
+        const server = createServer({jwt_shared_secret: 'thekey'});
+        await new Promise(resolve => server.listen(resolve));
+
+        {
+          const jwtoken = jwt.sign({
+            name: 'bar'
+          }, 'thekey');
+          await request(server).get('/foobar-test').set('Authorization', `Bearer ${jwtoken}`);
+
+          const res = await request(server).get('/api/tunnels/foobar-test/kill').set('Authorization', `Bearer ${jwtoken}`);
+          assert.equal(res.statusCode, 200);
+          assert.equal(res.text, '{"success":true,"message":"client with id foobar-test is disconected"}');
+          const statusResult = await request(server).get('/api/tunnels/foobar-test/status').set('Authorization', `Bearer ${jwtoken}`);
+          assert.equal(statusResult.text, 'Not Found');
+        }
+
+        await new Promise(resolve => server.close(resolve));
+    });
 });
