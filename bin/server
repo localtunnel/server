@@ -31,6 +31,14 @@ const argv = optimist
         default: 10,
         describe: 'maximum number of tcp sockets each client is allowed to establish at one time (the tunnels)'
     })
+    .options('range', {
+        default: null,
+        describe: 'will bind incoming connections only on ports in range xxx:xxxx'
+    })
+    .options('jwt-shared-secret', {
+        default: null,
+        describe: 'JWT shared secret used to encode tokens'
+    })
     .argv;
 
 if (argv.help) {
@@ -42,6 +50,8 @@ const server = CreateServer({
     max_tcp_sockets: argv['max-sockets'],
     secure: argv.secure,
     domain: argv.domain,
+    range: argv.range,
+    jwt_shared_secret: argv['jwt-shared-secret']
 });
 
 server.listen(argv.port, argv.address, () => {
