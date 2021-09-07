@@ -17,7 +17,7 @@ const argv = optimist
         describe: 'use this flag to indicate proxy over https'
     })
     .options('port', {
-        default: '80',
+        default: process.env.PORT || '80',
         describe: 'listen on this port for outside requests'
     })
     .options('address', {
