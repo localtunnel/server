@@ -1,14 +1,14 @@
 #!/usr/bin/env node -r esm
 
-import 'localenv';
-import optimist from 'optimist';
+require('localenv');
+const optimist = require('optimist');
 
-import log from 'book';
-import Debug from 'debug';
+const log = require('book');
+// const Debug = require('debug');
 
-import CreateServer from '../server';
+const CreateServer = require('../server');
 
-const debug = Debug('localtunnel');
+// const debug = Debug('localtunnel');
 
 const argv = optimist
     .usage('Usage: $0 --port [num]')
@@ -45,7 +45,8 @@ const server = CreateServer({
 });
 
 server.listen(argv.port, argv.address, () => {
-    debug('server listening on port: %d', server.address().port);
+    // debug('server listening on port: %d', server.address().port);
+    console.log(`server listening on : ${JSON.stringify(server.address())}`)
 });
 
 process.on('SIGINT', () => {

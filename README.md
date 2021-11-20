@@ -1,3 +1,5 @@
+# build image
+docker build -t lt-server .
 # localtunnel-server
 
 [![Build Status](https://travis-ci.org/localtunnel/server.svg?branch=master)](https://travis-ci.org/localtunnel/server)

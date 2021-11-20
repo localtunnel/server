@@ -1,25 +1,16 @@
-import log from 'book';
-import Koa from 'koa';
-import tldjs from 'tldjs';
-import Debug from 'debug';
-import http from 'http';
-import { hri } from 'human-readable-ids';
-import Router from 'koa-router';
+const Koa = require('koa');
+const Debug = require('debug');
+const http = require('http');
+const Router = require('koa-router');
 
-import ClientManager from './lib/ClientManager';
+const ClientManager = require('./lib/ClientManager');
 
 const debug = Debug('localtunnel:server');
 
-export default function(opt) {
+module.exports = function(opt) {
     opt = opt || {};
 
-    const validHosts = (opt.domain) ? [opt.domain] : undefined;
-    const myTldjs = tldjs.fromUserSettings({ validHosts });
     const landingPage = opt.landing || 'https://localtunnel.github.io/www/';
-
-    function GetClientIdFromHostname(hostname) {
-        return myTldjs.getSubdomain(hostname);
-    }
 
     const manager = new ClientManager(opt);
 
@@ -53,49 +44,25 @@ export default function(opt) {
     app.use(router.routes());
     app.use(router.allowedMethods());
 
-    // root endpoint
-    app.use(async (ctx, next) => {
-        const path = ctx.request.path;
+    app.use(async (ctx) => {
+        const newReqId = ctx.query['new'];
+        const parts = ctx.originalUrl.split('/')
+        const reqId = parts[1]
 
-        // skip anything not on the root path
-        if (path !== '/') {
-            await next();
+        if(reqId && !newReqId) {
+            ctx.status = 404;
+            ctx.body = {
+                message: 'id not found',
+            };
             return;
         }
-
-        const isNewClientRequest = ctx.query['new'] !== undefined;
-        if (isNewClientRequest) {
-            const reqId = hri.random();
-            debug('making new client with id %s', reqId);
-            const info = await manager.newClient(reqId);
-
-            const url = schema + '://' + info.id + '.' + ctx.request.host;
-            info.url = url;
-            ctx.body = info;
+        if (!newReqId) {
+            ctx.redirect(landingPage);
             return;
         }
-
-        // no new client request, send to landing page
-        ctx.redirect(landingPage);
-    });
-
-    // anything after the / path is a request for a specific client name
-    // This is a backwards compat feature
-    app.use(async (ctx, next) => {
-        const parts = ctx.request.path.split('/');
-
-        // any request with several layers of paths is not allowed
-        // rejects /foo/bar
-        // allow /foo
-        if (parts.length !== 2) {
-            await next();
-            return;
-        }
-
-        const reqId = parts[1];
 
         // limit requested hostnames to 63 characters
-        if (! /^(?:[a-z0-9][a-z0-9\-]{4,63}[a-z0-9]|[a-z0-9]{4,63})$/.test(reqId)) {
+        if (! /^(?:[a-z0-9][a-z0-9\-]{4,63}[a-z0-9]|[a-z0-9]{4,63})$/.test(newReqId)) {
             const msg = 'Invalid subdomain. Subdomains must be lowercase and between 4 and 63 alphanumeric characters.';
             ctx.status = 403;
             ctx.body = {
@@ -104,10 +71,10 @@ export default function(opt) {
             return;
         }
 
-        debug('making new client with id %s', reqId);
-        const info = await manager.newClient(reqId);
+        debug('making new client with id %s', newReqId);
+        const info = await manager.newClient(newReqId);
 
-        const url = schema + '://' + info.id + '.' + ctx.request.host;
+        const url = `${schema}://${ctx.request.host}/${info.id}`;
         info.url = url;
         ctx.body = info;
         return;
@@ -117,16 +84,14 @@ export default function(opt) {
 
     const appCallback = app.callback();
 
-    server.on('request', (req, res) => {
-        // without a hostname, we won't know who the request is for
-        const hostname = req.headers.host;
-        if (!hostname) {
-            res.statusCode = 400;
-            res.end('Host header is required');
+    server.on('request', (req, res) => {        
+        const parts = req.url.split('/');
+        if(parts[1].indexOf('?new=') === 0){
+            appCallback(req, res);
             return;
         }
+        const clientId = parts[1];
 
-        const clientId = GetClientIdFromHostname(hostname);
         if (!clientId) {
             appCallback(req, res);
             return;
@@ -134,27 +99,22 @@ export default function(opt) {
 
         const client = manager.getClient(clientId);
         if (!client) {
-            res.statusCode = 404;
-            res.end('404');
+            appCallback(req, res);
             return;
         }
 
         client.handleRequest(req, res);
     });
 
-    server.on('upgrade', (req, socket, head) => {
-        const hostname = req.headers.host;
-        if (!hostname) {
-            socket.destroy();
-            return;
-        }
+    server.on('upgrade', (req, socket) => {
+        const parts = req.url.split('/').filter((part=>part != ''));
+        const clientId = parts[0];
 
-        const clientId = GetClientIdFromHostname(hostname);
         if (!clientId) {
             socket.destroy();
             return;
         }
-
+        
         const client = manager.getClient(clientId);
         if (!client) {
             socket.destroy();
