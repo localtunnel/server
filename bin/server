@@ -1,12 +1,12 @@
 #!/usr/bin/env node -r esm
 
-require('localenv');
-const optimist = require('optimist');
+import 'localenv';
+import optimist from 'optimist';
 
-const log = require('book');
-const Debug = require('debug');
+import log from 'book';
+import Debug from 'debug';
 
-const CreateServer = require('../server');
+import CreateServer from '../server';
 
 const debug = Debug('localtunnel');
 
@@ -25,7 +25,7 @@ const argv = optimist
         describe: 'IP address to bind to'
     })
     .options('domain', {
-        describe: 'Specify the base domain name. This is optional if hosting localtunnel = require(a regular example.com domain. This is required if hosting a localtunnel server = require(a subdomain (i.e. lt.example.dom where clients will be client-app.lt.example.come)',
+        describe: 'Specify the base domain name. This is optional if hosting localtunnel from a regular example.com domain. This is required if hosting a localtunnel server from a subdomain (i.e. lt.example.dom where clients will be client-app.lt.example.come)',
     })
     .options('max-sockets', {
         default: 10,
