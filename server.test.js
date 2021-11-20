@@ -1,10 +1,10 @@
-import request from 'supertest';
-import assert from 'assert';
-import { Server as WebSocketServer } from 'ws';
-import WebSocket from 'ws';
-import net from 'net';
+const request = require('supertest';
+const assert = require('assert';
+const { Server as WebSocketServer } = require('ws';
+const WebSocket = require('ws';
+const net = require('net';
 
-import createServer from './server';
+const createServer = require('./server';
 
 describe('Server', () => {
     it('server starts and stops', async () => {

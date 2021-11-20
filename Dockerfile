@@ -1,4 +1,4 @@
-FROM node:10.1.0-alpine
+= require(node:10.1.0-alpine
 
 WORKDIR /app
 
