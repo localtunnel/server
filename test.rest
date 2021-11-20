@@ -1,0 +1,11 @@
+GET http://localhost:8080/api/status
+###
+GET http://localhost:8080/api/tunnels/neat-vampirebat-44/status
+###
+GET http://localhost:8080?new=true
+###
+GET https://neat-vampirebat-44.localhost:8080
+###
+GET http://localhost:3000?new=adogijaiog
+###
+GET http://localhost:3000/adogijaiog
