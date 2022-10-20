@@ -1,16 +1,16 @@
-import log from 'book';
-import Koa from 'koa';
-import tldjs from 'tldjs';
-import Debug from 'debug';
-import http from 'http';
-import { hri } from 'human-readable-ids';
-import Router from 'koa-router';
+const log = require('book');
+const Koa = require( 'koa');
+const tldjs = require( 'tldjs');
+const Debug = require( 'debug');
+const http = require( 'http');
+const { hri } = require( 'human-readable-ids');
+const Router = require( 'koa-router');
 
-import ClientManager from './lib/ClientManager';
+const ClientManager = require( './lib/ClientManager');
 
 const debug = Debug('localtunnel:server');
 
-export default function(opt) {
+module.exports = function(opt) {
     opt = opt || {};
 
     const validHosts = (opt.domain) ? [opt.domain] : undefined;
@@ -83,7 +83,6 @@ export default function(opt) {
     // This is a backwards compat feature
     app.use(async (ctx, next) => {
         const parts = ctx.request.path.split('/');
-
         // any request with several layers of paths is not allowed
         // rejects /foo/bar
         // allow /foo
@@ -95,7 +94,7 @@ export default function(opt) {
         const reqId = parts[1];
 
         // limit requested hostnames to 63 characters
-        if (! /^(?:[a-z0-9][a-z0-9\-]{4,63}[a-z0-9]|[a-z0-9]{4,63})$/.test(reqId)) {
+        if (! /^(?:[a-z0-9][a-z0-9\-]{1,63}[a-z0-9]|[a-z0-9]{3,63})$/.test(reqId)) {
             const msg = 'Invalid subdomain. Subdomains must be lowercase and between 4 and 63 alphanumeric characters.';
             ctx.status = 403;
             ctx.body = {
