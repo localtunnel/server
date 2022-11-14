@@ -56,7 +56,7 @@ module.exports = function(opt) {
     // root endpoint
     app.use(async (ctx, next) => {
         const path = ctx.request.path;
-
+        console.log("new request",path)
         // skip anything not on the root path
         if (path !== '/') {
             await next();
@@ -119,6 +119,7 @@ module.exports = function(opt) {
     server.on('request', (req, res) => {
         // without a hostname, we won't know who the request is for
         const hostname = req.headers.host;
+	console.log("new on request",req.path,req.headers.host);
         if (!hostname) {
             res.statusCode = 400;
             res.end('Host header is required');
