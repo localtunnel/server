@@ -47,7 +47,7 @@ If your server is acting as a reverse proxy (i.e. nginx) and is able to listen o
 
 ### POST /api/tunnels
 
-Create a new tunnel. A LocalTunnel client posts to this enpoint to request a new tunnel with a specific name or a randomly assigned name.
+Create a new tunnel. A LocalTunnel client posts to this endpoint to request a new tunnel with a specific name or a randomly assigned name.
 
 ### GET /api/status
 
