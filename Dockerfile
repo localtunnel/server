@@ -11,3 +11,5 @@ COPY . /app
 
 ENV NODE_ENV production
 ENTRYPOINT ["node", "-r", "esm", "./bin/server"]
+
+EXPOSE 1234
