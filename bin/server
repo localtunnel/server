@@ -52,8 +52,8 @@ process.on('SIGINT', () => {
 });
 
 process.on('SIGTERM', () => {
-    console.error("SIGTERM");
-    process.exit();
+    console.warn("SIGTERM");
+    // process.exit();
 });
 
 process.on('uncaughtException', (err) => {
