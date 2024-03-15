@@ -28,7 +28,7 @@
   },
   "scripts": {
     "test": "mocha --check-leaks --require esm './**/*.test.js'",
-    "start": "./bin/server",
+    "start": "./bin/server --domain tunnel.rubric.sh",
     "dev": "node-dev bin/server --port 3000"
   }
 }
