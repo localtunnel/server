@@ -1,15 +1,15 @@
-FROM node:10.1.0-alpine
+FROM oven/bun:1 as base
 
 WORKDIR /app
 
 COPY package.json /app/
-COPY yarn.lock /app/
+COPY bun.lockb /app/
 
-RUN yarn install --production && yarn cache clean
+RUN bun install --frozen-lockfile --production
 
 COPY . /app
 
 ENV NODE_ENV production
-ENTRYPOINT ["node", "-r", "esm", "./bin/server"]
+ENTRYPOINT ["bun", "run", "start"]
 
-EXPOSE 1234
+EXPOSE 1234 1235
