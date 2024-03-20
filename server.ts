@@ -16,7 +16,8 @@ serve<Client>({
     const reqUrl = new URL(req.url);
 
     if (reqUrl.searchParams.has("new")) {
-      const upgraded = server.upgrade(req, { data: { id: uid() } });
+      const id = reqUrl.searchParams.get("subdomain") || uid();
+      const upgraded = server.upgrade(req, { data: { id } });
       if (upgraded) return;
       else return new Response("Upgrade failed :(", { status: 500 });
     }
