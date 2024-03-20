@@ -14,7 +14,8 @@
     "@types/bun": "^1.0.8"
   },
   "scripts": {
-    "start": "bun run server.ts",
-    "lt": "bun run client/index.ts"
+    "server": "bun run server.ts",
+    "lt": "bun run client/index.ts",
+    "demo": "bun run demo.ts"
   }
 }
