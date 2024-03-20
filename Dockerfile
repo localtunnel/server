@@ -10,6 +10,6 @@ RUN bun install --frozen-lockfile --production
 COPY . /app
 
 ENV NODE_ENV production
-ENTRYPOINT ["bun", "run", "start"]
+ENTRYPOINT ["bun", "run", "server"]
 
-EXPOSE 1234 1235
+EXPOSE 1234

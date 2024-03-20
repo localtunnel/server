@@ -1,7 +1,5 @@
 # fly.toml app configuration file generated for tunnel on 2024-03-18T21:37:28-04:00
-#
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
-#
 
 app = 'tunnel'
 primary_region = 'yul'
@@ -20,11 +18,3 @@ primary_region = 'yul'
   memory = '1gb'
   cpu_kind = 'shared'
   cpus = 1
-
-# [[services]]
-#   internal_port = 1235
-#   protocol = "tcp"
-
-[[services.ports]]
-  handlers = ["tls", "http"]
-  port = 443

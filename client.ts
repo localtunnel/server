@@ -15,7 +15,9 @@ async function main({ url }: { url: string }) {
         headers: data.headers,
       })
         .then((res) => res.text())
-        .then(socket.send);
+        .then((res) => {
+          socket.send(res);
+        });
     }
   });
 

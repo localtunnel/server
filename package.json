@@ -15,7 +15,7 @@
   },
   "scripts": {
     "server": "bun run server.ts",
-    "lt": "bun run client/index.ts",
+    "lt": "bun run client.ts",
     "demo": "bun run demo.ts"
   }
 }
