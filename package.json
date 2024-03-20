@@ -1,11 +1,11 @@
 {
-  "name": "tunnel",
+  "name": "bunl",
   "description": "expose localhost to the world",
   "version": "0.0.0",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rubriclab/tunnel"
+    "url": "https://github.com/rubriclab/bunl"
   },
   "dependencies": {
     "human-id": "^4.1.1"
@@ -16,6 +16,6 @@
   "scripts": {
     "server": "bun run server.ts",
     "lt": "bun run client.ts",
-    "demo": "bun run demo.ts"
+    "demo": "bun run --hot demo.ts"
   }
 }
