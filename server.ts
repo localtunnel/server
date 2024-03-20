@@ -1,178 +1,78 @@
-import Koa from "koa";
-import tldjs from "tldjs";
-import Debug from "debug";
-import http from "http";
-import { hri } from "human-readable-ids";
-import Router from "koa-router";
-import { ClientManager } from "./lib/manager";
+import { ServerWebSocket, serve } from "bun";
+import { uid, wait } from "./utils";
 
-export type Options = {
-  domain: string;
-  secure: boolean;
-  landing?: string;
-  max_tcp_sockets?: number;
-};
+type Client = { id: string };
 
-const debug = Debug("localtunnel:server");
+const port = 1234;
+const protocol = "http";
+const clients = new Map<string, ServerWebSocket<Client>>();
+const clientData = new Map<string, any>();
 
-export const CreateServer = (opt: Options) => {
-  opt = opt || {};
+serve<Client>({
+  port,
+  fetch: async (req, server) => {
+    const reqUrl = new URL(req.url);
 
-  const validHosts = opt.domain ? [opt.domain] : undefined;
-  const myTldjs = tldjs.fromUserSettings({ validHosts });
-  const landingPage = opt.landing || "https://localtunnel.github.io/www/";
-
-  function getClientIdFromHostname(hostname: string) {
-    return myTldjs.getSubdomain(hostname);
-  }
-
-  const manager = new ClientManager(opt);
-
-  const schema = opt.secure ? "https" : "http";
-
-  const app = new Koa();
-  const router = new Router();
-
-  router.get("/api/status", async (ctx, _next) => {
-    const stats = manager.stats;
-    ctx.body = {
-      tunnels: stats.tunnels,
-      mem: process.memoryUsage(),
-    };
-  });
-
-  router.get("/api/tunnels/:id/status", async (ctx, _next) => {
-    const clientId = ctx.params.id;
-    const client = manager.getClient(clientId);
-    if (!client) {
-      ctx.throw(404);
-      return;
+    if (reqUrl.searchParams.has("new")) {
+      const upgraded = server.upgrade(req, { data: { id: uid() } });
+      if (upgraded) return;
+      else return new Response("Upgrade failed :(", { status: 500 });
     }
 
-    const stats = client.stats();
-    ctx.body = {
-      connected_sockets: stats.connectedSockets,
-    };
-  });
+    console.log("user req:", req.url);
+    const subdomain = reqUrl.hostname.split(".")[0];
 
-  app.use(router.routes());
-  app.use(router.allowedMethods());
-
-  // root endpoint
-  app.use(async (ctx, next) => {
-    const path = ctx.request.path;
-
-    // skip anything not on the root path
-    if (path !== "/") {
-      await next();
-      return;
+    if (!clients.has(subdomain)) {
+      console.log(`\x1b[31m${subdomain} not found \x1b[0m`);
+      return new Response("client not found :(", { status: 404 });
     }
 
-    const isNewClientRequest = ctx.query["new"] !== undefined;
-    if (isNewClientRequest) {
-      const reqId = hri.random();
+    // The magic: forward the req to the client
+    const client = clients.get(subdomain)!;
+    const { method, url, headers } = req;
+    const path = new URL(url).pathname;
+    client.send(JSON.stringify({ method, path, headers }));
 
-      debug("making new client with id %s", reqId);
+    // Wait for the client to cache its response above
+    await wait(1);
 
-      const info = await manager.newClient(reqId);
+    let retries = 5;
+    let res = clientData.get(subdomain);
 
-      const url = schema + "://" + info.id + "." + ctx.request.host;
+    while (!res) {
+      await wait(1000);
+      retries--;
 
-      info.url = url;
-      ctx.body = info;
+      res = clientData.get(subdomain);
 
-      return;
+      if (retries < 1) {
+        console.log(`\x1b[31m${subdomain} not responding \x1b[0m`);
+        return new Response("client not responding :(", { status: 500 });
+      }
     }
 
-    // no new client request, send to landing page
-    ctx.redirect(landingPage);
-  });
+    return new Response(res, { status: 200 });
+  },
+  websocket: {
+    open(ws) {
+      console.log("connecting to", ws.data.id);
+      clients.set(ws.data.id, ws);
+      ws.send(
+        JSON.stringify({
+          id: ws.data.id,
+          url: `${protocol}://${ws.data.id}.localhost:${port}`,
+        })
+      );
+    },
+    message(ws, message) {
+      console.log("message from", ws.data.id, message);
+      clientData.set(ws.data.id, message);
+    },
+    close(ws) {
+      console.log(`closing ${ws.data.id}`);
+      clients.delete(ws.data.id);
+    },
+  },
+});
 
-  // anything after the / path is a request for a specific client name
-  // This is a backwards compat feature
-  app.use(async (ctx, next) => {
-    const parts = ctx.request.path.split("/");
-
-    // any request with several layers of paths is not allowed
-    // rejects /foo/bar; allow /foo
-    if (parts.length !== 2) {
-      await next();
-      return;
-    }
-
-    const reqId = parts[1];
-
-    // limit requested hostnames to 63 characters
-    if (!/^(?:[a-z0-9][a-z0-9\-]{4,63}[a-z0-9]|[a-z0-9]{4,63})$/.test(reqId)) {
-      const msg =
-        "Invalid subdomain. Subdomains must be lowercase and between 4 and 63 alphanumeric characters.";
-      ctx.status = 403;
-      ctx.body = {
-        message: msg,
-      };
-      return;
-    }
-
-    debug("making new client with id %s", reqId);
-    const info = await manager.newClient(reqId);
-
-    const url = schema + "://" + info.id + "." + ctx.request.host;
-    info.url = url;
-    ctx.body = info;
-    return;
-  });
-
-  const server = http.createServer();
-
-  const appCallback = app.callback();
-
-  server.on("request", (req, res) => {
-    // without a hostname, we won't know who the request is for
-    const hostname = req.headers.host;
-    if (!hostname) {
-      res.statusCode = 400;
-      res.end("Host header is required");
-      return;
-    }
-
-    const clientId = getClientIdFromHostname(hostname);
-    if (!clientId) {
-      appCallback(req, res);
-      return;
-    }
-
-    const client = manager.getClient(clientId);
-    if (!client) {
-      res.statusCode = 404;
-      res.end("404");
-      return;
-    }
-
-    client.handleRequest(req, res);
-  });
-
-  server.on("upgrade", (req, socket, head) => {
-    console.log(`\n\n\n\x1b[33m==>UPGRADE \x1b[0m\n`);
-    const hostname = req.headers.host;
-    if (!hostname) {
-      socket.destroy();
-      return;
-    }
-
-    const clientId = getClientIdFromHostname(hostname);
-    if (!clientId) {
-      socket.destroy();
-      return;
-    }
-
-    const client = manager.getClient(clientId);
-    if (!client) {
-      socket.destroy();
-      return;
-    }
-
-    client.handleUpgrade(req, socket);
-  });
-
-  return server;
-};
+console.log(`Websocket server on port ${port}`);
