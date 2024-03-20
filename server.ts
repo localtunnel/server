@@ -5,6 +5,8 @@ type Client = { id: string };
 
 const port = 1234;
 const protocol = "http";
+const domain = Bun.env.DOMAIN || `localhost:${port}`;
+console.log("domain:", domain);
 const clients = new Map<string, ServerWebSocket<Client>>();
 const clientData = new Map<string, any>();
 
@@ -60,7 +62,7 @@ serve<Client>({
       ws.send(
         JSON.stringify({
           id: ws.data.id,
-          url: `${protocol}://${ws.data.id}.localhost:${port}`,
+          url: `${protocol}://${ws.data.id}.${domain}`,
         })
       );
     },
