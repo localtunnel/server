@@ -49,6 +49,12 @@ If your server is acting as a reverse proxy (i.e. nginx) and is able to listen o
 
 Create a new tunnel. A LocalTunnel client posts to this enpoint to request a new tunnel with a specific name or a randomly assigned name.
 
+### POST /api/tunnels/:id/kill
+
+Disconnect a tunnel. 
+
+*Note* this endpoint is enabled only with `--secret` set.
+
 ### GET /api/status
 
 General server information.

@@ -1,13 +1,28 @@
-FROM node:10.1.0-alpine
+FROM node:22 AS build
 
 WORKDIR /app
 
 COPY package.json /app/
-COPY yarn.lock /app/
+COPY package-lock.json /app/
 
-RUN yarn install --production && yarn cache clean
+RUN npm install
 
-COPY . /app
+COPY ./src /app/src
+COPY ./bin /app/bin
+COPY ./tsconfig.json /app
 
-ENV NODE_ENV production
-ENTRYPOINT ["node", "-r", "esm", "./bin/server"]
+RUN npm run build
+
+FROM node:22-alpine
+
+COPY --from=build /app/bin /app/bin
+COPY --from=build /app/build /app/build
+COPY --from=build /app/package.json /app/
+COPY --from=build /app/package-lock.json /app/
+
+WORKDIR /app
+
+RUN npm install --production
+
+ENV NODE_ENV=production
+ENTRYPOINT ["node", "./bin/server.js"]
